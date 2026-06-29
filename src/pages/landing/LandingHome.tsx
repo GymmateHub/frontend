@@ -28,7 +28,7 @@ export default function LandingHome() {
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
         <div className="absolute inset-0">
           <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-brand-500/20 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "1s" }} />
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-pulse [animation-delay:1s]" />
         </div>
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
@@ -83,40 +83,86 @@ export default function LandingHome() {
               </div>
             </motion.div>
 
-            <motion.div initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, delay: 0.2 }} className="relative">
-              <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-brand-500/20">
-                <div className="absolute inset-0 bg-gradient-to-tr from-brand-500/20 to-blue-500/20 z-10" />
-                <img
-                  alt="Gym management dashboard"
-                  className="w-full h-auto rounded-2xl"
-                  src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800"
-                />
+            <motion.div initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, delay: 0.2 }} className="relative pt-8 pb-8 px-8">
+              {/* Dashboard mockup */}
+              <div className="relative rounded-2xl shadow-2xl shadow-brand-500/20 overflow-hidden bg-gradient-to-br from-brand-50 to-blue-50 dark:from-gray-800 dark:to-gray-900 border border-gray-200 dark:border-gray-700">
+                <div className="absolute inset-0 bg-gradient-to-tr from-brand-500/10 to-blue-500/10" />
+                {/* Fake dashboard UI */}
+                <div className="relative p-6 space-y-4">
+                  {/* Header bar */}
+                  <div className="flex items-center justify-between">
+                    <div className="h-4 w-32 bg-brand-500/20 rounded-full" />
+                    <div className="flex gap-2">
+                      <div className="h-4 w-4 rounded-full bg-red-400/60" />
+                      <div className="h-4 w-4 rounded-full bg-yellow-400/60" />
+                      <div className="h-4 w-4 rounded-full bg-green-400/60" />
+                    </div>
+                  </div>
+                  {/* Stat cards row */}
+                  <div className="grid grid-cols-3 gap-3">
+                    {[["Members", "1,240", "text-brand-500"], ["Revenue", "₦480k", "text-green-500"], ["Classes", "36", "text-blue-500"]].map(([label, val, color]) => (
+                      <div key={label} className="bg-white/80 dark:bg-gray-800/80 rounded-xl p-3 border border-gray-200/60 dark:border-gray-700/60">
+                        <p className={`text-lg font-bold ${color}`}>{val}</p>
+                        <p className="text-xs text-gray-400">{label}</p>
+                      </div>
+                    ))}
+                  </div>
+                  {/* Member rows */}
+                  <div className="space-y-2">
+                    {["Adewale Okafor", "Chioma Nwosu", "Emeka Eze"].map((name, i) => (
+                      <div key={name} className="flex items-center gap-3 bg-white/70 dark:bg-gray-800/70 rounded-lg px-3 py-2 border border-gray-100 dark:border-gray-700/50">
+                        <div className="h-7 w-7 rounded-full bg-brand-500/20 flex items-center justify-center text-brand-600 font-bold text-xs flex-shrink-0">
+                          {name[0]}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-medium text-gray-700 dark:text-gray-300 truncate">{name}</p>
+                        </div>
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${i === 1 ? "bg-yellow-100 text-yellow-700" : "bg-green-100 text-green-700"}`}>
+                          {i === 1 ? "Due" : "Active"}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                  {/* Chart placeholder */}
+                  <div className="bg-white/70 dark:bg-gray-800/70 rounded-xl p-3 border border-gray-100 dark:border-gray-700/50">
+                    <div className="flex items-end gap-1 h-12">
+                      {[40, 65, 45, 80, 55, 90, 70].map((_h, i) => (
+                        <div key={i} className={`flex-1 rounded-t bg-brand-500/40 dark:bg-brand-500/60 ${["h-[40%]","h-[65%]","h-[45%]","h-[80%]","h-[55%]","h-[90%]","h-[70%]"][i]}`} />
+                      ))}
+                    </div>
+                    <p className="text-xs text-gray-400 mt-1">Monthly revenue</p>
+                  </div>
+                </div>
               </div>
 
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 1 }}
-                className="absolute -bottom-6 -left-6 bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border border-gray-200 dark:border-gray-700 rounded-xl p-4 shadow-xl"
+              {/* Floating card — bottom left */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 1 }}
+                className="absolute bottom-0 left-0 bg-white dark:bg-gray-800 backdrop-blur-md border border-gray-200 dark:border-gray-700 rounded-xl p-4 shadow-xl"
               >
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-brand-50 dark:bg-brand-500/10 rounded-lg">
-                    <Users className="h-6 w-6 text-brand-500" />
+                    <Users className="h-5 w-5 text-brand-500" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-gray-800 dark:text-white">5 min</p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Quick Setup</p>
+                    <p className="text-xl font-bold text-gray-800 dark:text-white">5 min</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Quick Setup</p>
                   </div>
                 </div>
               </motion.div>
 
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 1.2 }}
-                className="absolute -top-6 -right-6 bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border border-gray-200 dark:border-gray-700 rounded-xl p-4 shadow-xl"
+              {/* Floating card — top right */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 1.2 }}
+                className="absolute top-0 right-0 bg-white dark:bg-gray-800 backdrop-blur-md border border-gray-200 dark:border-gray-700 rounded-xl p-4 shadow-xl"
               >
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-blue-50 dark:bg-blue-500/10 rounded-lg">
-                    <TrendingUp className="h-6 w-6 text-blue-500" />
+                    <TrendingUp className="h-5 w-5 text-blue-500" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-gray-800 dark:text-white">₦0</p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">To Get Started</p>
+                    <p className="text-xl font-bold text-gray-800 dark:text-white">₦0</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">To Get Started</p>
                   </div>
                 </div>
               </motion.div>
