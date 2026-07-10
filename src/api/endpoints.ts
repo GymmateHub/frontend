@@ -7,8 +7,7 @@ export const AUTH = {
   LOGIN: "/auth/login",
   LOGOUT: "/auth/logout",
   REFRESH: "/auth/refresh",
-  REGISTER: "/auth/register",
-  REGISTER_GYM_ADMIN: "/auth/register/gym-admin",
+  REGISTER_OWNER: "/auth/register/owner",
   REGISTER_MEMBER: "/auth/register/member",
   VERIFY_OTP: "/auth/register/verify-otp",
   RESEND_OTP: "/auth/register/resend-otp",
@@ -44,7 +43,6 @@ export const GYMS = {
   WEBSITE: (id: string) => `/gyms/${id}/website`,
   COMPLETE_ONBOARDING: (id: string) => `/gyms/${id}/complete-onboarding`,
   BY_CITY: (city: string) => `/gyms/city/${city}`,
-  BY_OWNER: (ownerId: string) => `/gyms/owner/${ownerId}`,
   SUBSCRIPTION_EXPIRED: (id: string) => `/gyms/${id}/subscription/expired`,
 } as const;
 
@@ -70,7 +68,6 @@ export const MEMBERS = {
 } as const;
 
 export const MEMBERSHIPS = {
-  BASE: "/memberships",
   BY_ID: (id: string) => `/memberships/${id}`,
   SUBSCRIBE: "/memberships/subscribe",
   BY_MEMBER: (memberId: string) => `/memberships/member/${memberId}`,
@@ -333,6 +330,82 @@ export const USERS = {
   DEACTIVATE: (id: string) => `/users/${id}/deactivate`,
   GYM_ADMINS: "/users/gym-admins",
   BY_ROLE: (role: string) => `/users/by-role/${role}`,
+} as const;
+
+export const ANALYTICS = {
+  DASHBOARD: (gymId: string) => `/analytics/dashboard/gym/${gymId}`,
+  DASHBOARD_TODAY: (gymId: string) => `/analytics/dashboard/gym/${gymId}/today`,
+  DASHBOARD_WEEKLY: (gymId: string) => `/analytics/dashboard/gym/${gymId}/weekly`,
+  DASHBOARD_MONTHLY: (gymId: string) => `/analytics/dashboard/gym/${gymId}/monthly`,
+  MEMBERS: (gymId: string) => `/analytics/members/gym/${gymId}`,
+  REVENUE: (gymId: string) => `/analytics/revenue/gym/${gymId}`,
+  CLASSES: (gymId: string) => `/analytics/classes/gym/${gymId}`,
+  KPI_MEMBERS: (gymId: string) => `/analytics/kpi/members/gym/${gymId}`,
+  KPI_REVENUE: (gymId: string) => `/analytics/kpi/revenue/gym/${gymId}`,
+  KPI_CLASSES: (gymId: string) => `/analytics/kpi/classes/gym/${gymId}`,
+} as const;
+
+export const NOTIFICATIONS = {
+  BASE: "/notifications",
+  BY_ID: (id: string) => `/notifications/${id}`,
+  UNREAD: "/notifications/unread",
+  UNREAD_COUNT: "/notifications/unread-count",
+  MARK_READ: (id: string) => `/notifications/${id}/read`,
+  MARK_ALL_READ: "/notifications/mark-all-read",
+  BY_GYM: (gymId: string) => `/notifications/gym/${gymId}`,
+  GYM_UNREAD: (gymId: string) => `/notifications/gym/${gymId}/unread`,
+  GYM_UNREAD_COUNT: (gymId: string) => `/notifications/gym/${gymId}/unread-count`,
+  GYM_MARK_ALL_READ: (gymId: string) => `/notifications/gym/${gymId}/mark-all-read`,
+  STREAM: "/notifications/stream",
+  STREAM_STATS: "/notifications/stream/stats",
+} as const;
+
+export const NEWSLETTERS = {
+  CAMPAIGNS: "/newsletters/campaigns",
+  CAMPAIGN_BY_ID: (id: string) => `/newsletters/campaigns/${id}`,
+  CAMPAIGN_PREVIEW: (id: string) => `/newsletters/campaigns/${id}/preview`,
+  CAMPAIGN_SCHEDULE: (id: string) => `/newsletters/campaigns/${id}/schedule`,
+  CAMPAIGN_SEND: (id: string) => `/newsletters/campaigns/${id}/send`,
+  CAMPAIGN_CANCEL: (id: string) => `/newsletters/campaigns/${id}/cancel`,
+  TEMPLATES: "/newsletters/templates",
+  TEMPLATE_BY_ID: (id: string) => `/newsletters/templates/${id}`,
+} as const;
+
+export const POS = {
+  SALES: "/pos/sales",
+  QUICK_SALE: "/pos/sales/quick",
+  SALE_BY_ID: (saleId: string) => `/pos/sales/${saleId}`,
+  COMPLETE_SALE: (saleId: string) => `/pos/sales/${saleId}/complete`,
+  CANCEL_SALE: (saleId: string) => `/pos/sales/${saleId}/cancel`,
+  REFUND_SALE: (saleId: string) => `/pos/sales/${saleId}/refund`,
+  ADD_SALE_ITEM: (saleId: string) => `/pos/sales/${saleId}/items`,
+  REMOVE_SALE_ITEM: (saleId: string, itemId: string) => `/pos/sales/${saleId}/items/${itemId}`,
+  SALES_BY_GYM: (gymId: string) => `/pos/sales/gym/${gymId}`,
+  SALES_TODAY: (gymId: string) => `/pos/sales/gym/${gymId}/today`,
+  SALES_DATE_RANGE: (gymId: string) => `/pos/sales/gym/${gymId}/daterange`,
+  SALES_BY_MEMBER: (memberId: string) => `/pos/sales/member/${memberId}`,
+  DRAWER_OPEN: "/pos/drawer/open",
+  DRAWER_CLOSE: (drawerId: string) => `/pos/drawer/${drawerId}/close`,
+  DRAWER_CURRENT: (gymId: string) => `/pos/drawer/gym/${gymId}/current`,
+  DRAWER_HISTORY: (gymId: string) => `/pos/drawer/gym/${gymId}/history`,
+  REPORT_SUMMARY: (gymId: string) => `/pos/reports/gym/${gymId}/summary`,
+  REPORT_TOP_ITEMS: (gymId: string) => `/pos/reports/gym/${gymId}/top-items`,
+} as const;
+
+export const LEADS = {
+  BASE: "/leads",
+  BY_ID: (id: string) => `/leads/${id}`,
+  BY_GYM: (gymId: string) => `/leads/gym/${gymId}`,
+  BY_GYM_AND_STATUS: (gymId: string, status: string) => `/leads/gym/${gymId}/status/${status}`,
+  ORGANISATION: "/leads/organisation",
+  STATUS: (id: string) => `/leads/${id}/status`,
+  CONVERT: (id: string) => `/leads/${id}/convert`,
+} as const;
+
+export const INVITES = {
+  BASE: (gymId: string) => `/gyms/${gymId}/invites`,
+  BY_ID: (gymId: string, inviteId: string) => `/gyms/${gymId}/invites/${inviteId}`,
+  RESEND: (gymId: string, inviteId: string) => `/gyms/${gymId}/invites/${inviteId}/resend`,
 } as const;
 
 export const WEBHOOKS = {

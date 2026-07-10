@@ -153,7 +153,7 @@ export const registerGymOwner = async (
   phone?: string
 ): Promise<{ userId: string; message: string }> => {
   try {
-    const response = await apiClient.post(AUTH.REGISTER_GYM_ADMIN, {
+    const response = await apiClient.post(AUTH.REGISTER_OWNER, {
       email,
       password,
       firstName,

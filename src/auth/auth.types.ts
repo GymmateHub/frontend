@@ -4,10 +4,12 @@
  */
 
 // Enums
+// Mirrors backend com.gymmate.shared.constants.UserRole
 export enum UserRole {
   SUPER_ADMIN = "SUPER_ADMIN",
-  OWNER = "OWNER",
   ADMIN = "ADMIN",
+  OWNER = "OWNER",
+  MANAGER = "MANAGER",
   TRAINER = "TRAINER",
   STAFF = "STAFF",
   MEMBER = "MEMBER",

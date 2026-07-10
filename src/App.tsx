@@ -90,7 +90,7 @@ export default function App() {
             <Route
               path="/gym-management"
               element={
-                <ProtectedRoute allowedRoles={["OWNER", "ADMIN"]}>
+                <ProtectedRoute allowedRoles={["OWNER", "MANAGER", "ADMIN"]}>
                   <GymManagementPage />
                 </ProtectedRoute>
               }
