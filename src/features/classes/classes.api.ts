@@ -39,23 +39,20 @@ export interface ClassResponse {
   updatedAt: string;
 }
 
+// Mirrors backend ScheduleResponse (classes/api/dto/ScheduleResponse.java)
 export interface ClassScheduleResponse {
   id: string;
   classId: string;
-  className: string;
-  trainerId: string;
-  trainerName: string;
-  gymAreaId: string;
-  gymAreaName: string;
-  dayOfWeek: string;
-  startTime: string;
-  endTime: string;
-  duration: number;
-  capacity: number;
-  enrolledCount: number;
-  availableSpots: number;
-  recurring: boolean;
-  active: boolean;
+  trainerId: string | null;
+  areaId: string | null;
+  startTime: string; // ISO datetime
+  endTime: string; // ISO datetime
+  capacityOverride: number | null;
+  priceOverride: number | null;
+  status: string;
+  cancellationReason: string | null;
+  instructorNotes: string | null;
+  adminNotes: string | null;
 }
 
 export interface ClassCategoryResponse {
@@ -78,15 +75,16 @@ export interface ClassCreateRequest {
   equipmentNeeded?: string[];
 }
 
+// Mirrors backend CreateScheduleRequest (classes/api/dto/CreateScheduleRequest.java)
 export interface ClassScheduleCreateRequest {
+  gymId: string;
   classId: string;
-  trainerId: string;
-  gymAreaId?: string;
-  dayOfWeek: string;
-  startTime: string;
-  endTime: string;
-  capacity: number;
-  recurring?: boolean;
+  trainerId?: string;
+  areaId?: string;
+  startTime: string; // ISO datetime
+  endTime: string; // ISO datetime
+  capacityOverride?: number;
+  priceOverride?: number;
 }
 
 export interface ClassCategoryCreateRequest {

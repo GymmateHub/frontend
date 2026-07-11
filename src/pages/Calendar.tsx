@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -7,119 +7,112 @@ import { EventInput, DateSelectArg, EventClickArg } from "@fullcalendar/core";
 import { Modal } from "../components/ui/modal";
 import { useModal } from "../hooks/useModal";
 import PageMeta from "../components/common/PageMeta";
+import { useAuth } from "../auth/auth.store";
+import {
+  useClasses,
+  useClassSchedules,
+  useCreateClassSchedule,
+  useUpdateClassSchedule,
+  useDeleteClassSchedule,
+} from "../features/classes/classes.hooks";
+import type { ClassScheduleResponse } from "../features/classes/classes.api";
 
-interface CalendarEvent extends EventInput {
-  extendedProps: {
-    calendar: string;
-  };
-}
+const statusColor: Record<string, string> = {
+  SCHEDULED: "primary",
+  IN_PROGRESS: "warning",
+  COMPLETED: "success",
+  CANCELLED: "danger",
+};
+
+const inputClass =
+  "dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800";
+
+/** Formats an ISO datetime for a datetime-local input (YYYY-MM-DDTHH:mm). */
+const toLocalInput = (iso: string) => (iso ? iso.slice(0, 16) : "");
 
 const Calendar: React.FC = () => {
-  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(
-    null
-  );
-  const [eventTitle, setEventTitle] = useState("");
-  const [eventStartDate, setEventStartDate] = useState("");
-  const [eventEndDate, setEventEndDate] = useState("");
-  const [eventLevel, setEventLevel] = useState("");
-  const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const { user } = useAuth();
+  const gymId = user?.gymId ?? "";
   const calendarRef = useRef<FullCalendar>(null);
   const { isOpen, openModal, closeModal } = useModal();
 
-  const calendarsEvents = {
-    Danger: "danger",
-    Success: "success",
-    Primary: "primary",
-    Warning: "warning",
+  const { data: schedules = [] } = useClassSchedules(gymId);
+  const { data: classes = [] } = useClasses(gymId);
+  const createSchedule = useCreateClassSchedule();
+  const updateSchedule = useUpdateClassSchedule();
+  const deleteSchedule = useDeleteClassSchedule();
+
+  const [editing, setEditing] = useState<ClassScheduleResponse | null>(null);
+  const [classId, setClassId] = useState("");
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
+
+  const classNames = new Map(classes.map((c: { id: string; name: string }) => [c.id, c.name]));
+
+  const events: EventInput[] = schedules.map((s) => ({
+    id: s.id,
+    title: classNames.get(s.classId) ?? "Class",
+    start: s.startTime,
+    end: s.endTime,
+    extendedProps: { calendar: statusColor[s.status?.toUpperCase()] ?? "primary" },
+  }));
+
+  const resetForm = () => {
+    setEditing(null);
+    setClassId("");
+    setStartTime("");
+    setEndTime("");
   };
 
-  useEffect(() => {
-    // Initialize with some events
-    setEvents([
-      {
-        id: "1",
-        title: "Event Conf.",
-        start: new Date().toISOString().split("T")[0],
-        extendedProps: { calendar: "Danger" },
-      },
-      {
-        id: "2",
-        title: "Meeting",
-        start: new Date(Date.now() + 86400000).toISOString().split("T")[0],
-        extendedProps: { calendar: "Success" },
-      },
-      {
-        id: "3",
-        title: "Workshop",
-        start: new Date(Date.now() + 172800000).toISOString().split("T")[0],
-        end: new Date(Date.now() + 259200000).toISOString().split("T")[0],
-        extendedProps: { calendar: "Primary" },
-      },
-    ]);
-  }, []);
-
   const handleDateSelect = (selectInfo: DateSelectArg) => {
-    resetModalFields();
-    setEventStartDate(selectInfo.startStr);
-    setEventEndDate(selectInfo.endStr || selectInfo.startStr);
+    resetForm();
+    const startOfDay = `${selectInfo.startStr.slice(0, 10)}T09:00`;
+    setStartTime(startOfDay);
+    setEndTime(`${selectInfo.startStr.slice(0, 10)}T10:00`);
     openModal();
   };
 
   const handleEventClick = (clickInfo: EventClickArg) => {
-    const event = clickInfo.event;
-    setSelectedEvent(event as unknown as CalendarEvent);
-    setEventTitle(event.title);
-    setEventStartDate(event.start?.toISOString().split("T")[0] || "");
-    setEventEndDate(event.end?.toISOString().split("T")[0] || "");
-    setEventLevel(event.extendedProps.calendar);
+    const schedule = schedules.find((s) => s.id === clickInfo.event.id);
+    if (!schedule) return;
+    setEditing(schedule);
+    setClassId(schedule.classId);
+    setStartTime(toLocalInput(schedule.startTime));
+    setEndTime(toLocalInput(schedule.endTime));
     openModal();
   };
 
-  const handleAddOrUpdateEvent = () => {
-    if (selectedEvent) {
-      // Update existing event
-      setEvents((prevEvents) =>
-        prevEvents.map((event) =>
-          event.id === selectedEvent.id
-            ? {
-                ...event,
-                title: eventTitle,
-                start: eventStartDate,
-                end: eventEndDate,
-                extendedProps: { calendar: eventLevel },
-              }
-            : event
-        )
-      );
+  const handleSave = () => {
+    if (!classId || !startTime || !endTime || !gymId) return;
+    const payload = { gymId, classId, startTime, endTime };
+    const onSuccess = () => {
+      closeModal();
+      resetForm();
+    };
+    if (editing) {
+      updateSchedule.mutate({ id: editing.id, data: payload }, { onSuccess });
     } else {
-      // Add new event
-      const newEvent: CalendarEvent = {
-        id: Date.now().toString(),
-        title: eventTitle,
-        start: eventStartDate,
-        end: eventEndDate,
-        allDay: true,
-        extendedProps: { calendar: eventLevel },
-      };
-      setEvents((prevEvents) => [...prevEvents, newEvent]);
+      createSchedule.mutate(payload, { onSuccess });
     }
-    closeModal();
-    resetModalFields();
   };
 
-  const resetModalFields = () => {
-    setEventTitle("");
-    setEventStartDate("");
-    setEventEndDate("");
-    setEventLevel("");
-    setSelectedEvent(null);
+  const handleDelete = () => {
+    if (!editing) return;
+    deleteSchedule.mutate(editing.id, {
+      onSuccess: () => {
+        closeModal();
+        resetForm();
+      },
+    });
   };
+
+  const isSaving = createSchedule.isPending || updateSchedule.isPending;
 
   return (
     <>
       <PageMeta
-        title="Calendar | GymMateHub"
-        description="Manage your gym class schedule and events."
+        title="Class Calendar | GymMateHub"
+        description="Manage your gym class schedule."
       />
       <div className="rounded-2xl border  border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
         <div className="custom-calendar">
@@ -139,8 +132,11 @@ const Calendar: React.FC = () => {
             eventContent={renderEventContent}
             customButtons={{
               addEventButton: {
-                text: "Add Event +",
-                click: openModal,
+                text: "Schedule Class +",
+                click: () => {
+                  resetForm();
+                  openModal();
+                },
               },
             }}
           />
@@ -153,99 +149,71 @@ const Calendar: React.FC = () => {
           <div className="flex flex-col px-2 overflow-y-auto custom-scrollbar">
             <div>
               <h5 className="mb-2 font-semibold text-gray-800 modal-title text-theme-xl dark:text-white/90 lg:text-2xl">
-                {selectedEvent ? "Edit Event" : "Add Event"}
+                {editing ? "Edit Class Session" : "Schedule Class Session"}
               </h5>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                Plan your next big moment: schedule or edit an event to stay on
-                track
+                Sessions appear on the members' mobile app for booking.
               </p>
             </div>
             <div className="mt-8">
               <div>
-                <div>
-                  <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                    Event Title
-                  </label>
-                  <input
-                    id="event-title"
-                    type="text"
-                    value={eventTitle}
-                    onChange={(e) => setEventTitle(e.target.value)}
-                    className="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
-                  />
-                </div>
-              </div>
-              <div className="mt-6">
-                <label className="block mb-4 text-sm font-medium text-gray-700 dark:text-gray-400">
-                  Event Color
+                <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  Class
                 </label>
-                <div className="flex flex-wrap items-center gap-4 sm:gap-5">
-                  {Object.entries(calendarsEvents).map(([key, value]) => (
-                    <div key={key} className="n-chk">
-                      <div
-                        className={`form-check form-check-${value} form-check-inline`}
-                      >
-                        <label
-                          className="flex items-center text-sm text-gray-700 form-check-label dark:text-gray-400"
-                          htmlFor={`modal${key}`}
-                        >
-                          <span className="relative">
-                            <input
-                              className="sr-only form-check-input"
-                              type="radio"
-                              name="event-level"
-                              value={key}
-                              id={`modal${key}`}
-                              checked={eventLevel === key}
-                              onChange={() => setEventLevel(key)}
-                            />
-                            <span className="flex items-center justify-center w-5 h-5 mr-2 border border-gray-300 rounded-full box dark:border-gray-700">
-                              <span
-                                className={`h-2 w-2 rounded-full bg-white ${
-                                  eventLevel === key ? "block" : "hidden"
-                                }`}
-                              ></span>
-                            </span>
-                          </span>
-                          {key}
-                        </label>
-                      </div>
-                    </div>
+                <select
+                  value={classId}
+                  onChange={(e) => setClassId(e.target.value)}
+                  className={inputClass}
+                >
+                  <option value="">Select a class…</option>
+                  {classes.map((c: { id: string; name: string }) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
                   ))}
-                </div>
+                </select>
+                {classes.length === 0 && (
+                  <p className="mt-1.5 text-xs text-warning-600 dark:text-warning-400">
+                    No classes yet — create one on the Classes page first.
+                  </p>
+                )}
               </div>
 
               <div className="mt-6">
                 <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                  Enter Start Date
+                  Starts
                 </label>
-                <div className="relative">
-                  <input
-                    id="event-start-date"
-                    type="date"
-                    value={eventStartDate}
-                    onChange={(e) => setEventStartDate(e.target.value)}
-                    className="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
-                  />
-                </div>
+                <input
+                  type="datetime-local"
+                  value={startTime}
+                  onChange={(e) => setStartTime(e.target.value)}
+                  className={inputClass}
+                />
               </div>
 
               <div className="mt-6">
                 <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                  Enter End Date
+                  Ends
                 </label>
-                <div className="relative">
-                  <input
-                    id="event-end-date"
-                    type="date"
-                    value={eventEndDate}
-                    onChange={(e) => setEventEndDate(e.target.value)}
-                    className="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
-                  />
-                </div>
+                <input
+                  type="datetime-local"
+                  value={endTime}
+                  onChange={(e) => setEndTime(e.target.value)}
+                  className={inputClass}
+                />
               </div>
             </div>
             <div className="flex items-center gap-3 mt-6 modal-footer sm:justify-end">
+              {editing && (
+                <button
+                  onClick={handleDelete}
+                  disabled={deleteSchedule.isPending}
+                  type="button"
+                  className="flex justify-center rounded-lg border border-error-300 px-4 py-2.5 text-sm font-medium text-error-600 hover:bg-error-50 dark:border-error-700 dark:text-error-400 dark:hover:bg-error-500/10 disabled:opacity-50 sm:mr-auto"
+                >
+                  Delete
+                </button>
+              )}
               <button
                 onClick={closeModal}
                 type="button"
@@ -254,11 +222,12 @@ const Calendar: React.FC = () => {
                 Close
               </button>
               <button
-                onClick={handleAddOrUpdateEvent}
+                onClick={handleSave}
+                disabled={isSaving || !classId || !startTime || !endTime}
                 type="button"
-                className="btn btn-success btn-update-event flex w-full justify-center rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 sm:w-auto"
+                className="btn btn-success btn-update-event flex w-full justify-center rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed sm:w-auto"
               >
-                {selectedEvent ? "Update Changes" : "Add Event"}
+                {editing ? "Save Changes" : "Schedule"}
               </button>
             </div>
           </div>
@@ -268,7 +237,10 @@ const Calendar: React.FC = () => {
   );
 };
 
-const renderEventContent = (eventInfo: any) => {
+const renderEventContent = (eventInfo: {
+  timeText: string;
+  event: { title: string; extendedProps: { calendar: string } };
+}) => {
   const colorClass = `fc-bg-${eventInfo.event.extendedProps.calendar.toLowerCase()}`;
   return (
     <div

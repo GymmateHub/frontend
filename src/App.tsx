@@ -24,6 +24,7 @@ import VerifyEmail from "./pages/AuthPages/VerifyEmail";
 // App pages
 import DashboardPage from "./pages/app/DashboardPage";
 import MembersPage from "./pages/app/MembersPage";
+import MembershipPlansPage from "./pages/app/MembershipPlansPage";
 import ClassesPage from "./pages/app/ClassesPage";
 import EquipmentPage from "./pages/app/EquipmentPage";
 import InventoryPage from "./pages/app/InventoryPage";
@@ -40,6 +41,7 @@ import GymManagementPage from "./pages/app/GymManagementPage";
 import TenantManagementPage from "./pages/app/TenantManagementPage";
 
 // Other pages
+import Calendar from "./pages/Calendar";
 import UserProfiles from "./pages/UserProfiles";
 import NotFound from "./pages/OtherPage/NotFound";
 import Unauthorized from "./pages/OtherPage/Unauthorized";
@@ -74,7 +76,9 @@ export default function App() {
           <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/members" element={<MembersPage />} />
+            <Route path="/plans" element={<MembershipPlansPage />} />
             <Route path="/classes" element={<ClassesPage />} />
+            <Route path="/calendar" element={<Calendar />} />
             <Route path="/equipment" element={<EquipmentPage />} />
             <Route path="/inventory" element={<InventoryPage />} />
             <Route path="/analytics" element={<AnalyticsPage />} />

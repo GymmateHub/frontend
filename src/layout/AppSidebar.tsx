@@ -24,6 +24,7 @@ import {
   Building2,
   Shield,
   Box,
+  BadgeDollarSign,
 } from "lucide-react";
 import { useSidebar } from "../context/SidebarContext";
 import SidebarWidget from "./SidebarWidget";
@@ -47,9 +48,19 @@ const navItems: NavItem[] = [
     path: "/members",
   },
   {
+    icon: <BadgeDollarSign className="h-5 w-5" />,
+    name: "Plans",
+    path: "/plans",
+  },
+  {
     icon: <CalenderIcon />,
     name: "Classes",
     path: "/classes",
+  },
+  {
+    icon: <CalenderIcon />,
+    name: "Calendar",
+    path: "/calendar",
   },
   {
     icon: <Dumbbell className="h-5 w-5" />,
