@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Check, X, Star, ArrowRight, DollarSign, HelpCircle, Building } from "lucide-react";
+import { Check, X, Star, ArrowRight, DollarSign, HelpCircle, Building, ChevronDown } from "lucide-react";
 import { Link } from "react-router";
 import PageMeta from "../../components/common/PageMeta";
 
@@ -35,15 +35,15 @@ const pricingPlans = [
 ];
 
 const comparisonFeatures = [
-  { feature: "Member limit", starter: "20", pro: "150", enterprise: "500" },
-  { feature: "Payment tracking", starter: true, pro: true, enterprise: true },
-  { feature: "Member profiles", starter: true, pro: true, enterprise: true },
-  { feature: "Renewal reminders", starter: false, pro: true, enterprise: true },
-  { feature: "Attendance tracking", starter: false, pro: true, enterprise: true },
-  { feature: "Revenue reports", starter: false, pro: true, enterprise: true },
-  { feature: "Multiple staff", starter: false, pro: false, enterprise: true },
-  { feature: "Custom branding", starter: false, pro: false, enterprise: true },
-  { feature: "Support", starter: "WhatsApp", pro: "Priority", enterprise: "Dedicated" },
+  { feature: "Member limit", free: "20", growth: "150", pro: "500" },
+  { feature: "Payment tracking", free: true, growth: true, pro: true },
+  { feature: "Member profiles", free: true, growth: true, pro: true },
+  { feature: "Renewal reminders", free: false, growth: true, pro: true },
+  { feature: "Attendance tracking", free: false, growth: true, pro: true },
+  { feature: "Revenue reports", free: false, growth: true, pro: true },
+  { feature: "Multiple staff", free: false, growth: false, pro: true },
+  { feature: "Custom branding", free: false, growth: false, pro: true },
+  { feature: "Support", free: "WhatsApp", growth: "Priority", pro: "Dedicated" },
 ];
 
 const faqs = [
@@ -68,7 +68,7 @@ export default function LandingPricing() {
       <div className="pt-20 min-h-screen">
         {/* Hero */}
         <section className="relative py-20 sm:py-32 overflow-hidden">
-          <div className="absolute inset-0 bg-brand-500/5" />
+          <div className="absolute inset-0 bg-gradient-to-b from-brand-500/10 via-transparent to-transparent" />
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}
             className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center"
           >
@@ -128,11 +128,18 @@ export default function LandingPricing() {
                         <span className="ml-1 text-xl font-semibold text-gray-400">forever</span>
                       </div>
                     ) : (
-                      <div className="flex items-baseline">
-                        <span className="text-5xl font-extrabold text-gray-800 dark:text-white">
-                          {plan.price.currency}{(isAnnual ? Math.round(plan.price.annual / 12) : plan.price.monthly).toLocaleString()}
-                        </span>
-                        <span className="ml-1 text-xl font-semibold text-gray-400">/month</span>
+                      <div>
+                        <div className="flex items-baseline">
+                          <span className="text-5xl font-extrabold text-gray-800 dark:text-white">
+                            {plan.price.currency}{(isAnnual ? Math.round(plan.price.annual / 12) : plan.price.monthly).toLocaleString()}
+                          </span>
+                          <span className="ml-1 text-xl font-semibold text-gray-400">/month</span>
+                        </div>
+                        {isAnnual && (
+                          <p className="mt-2 text-sm text-gray-400">
+                            billed annually · {plan.price.currency}{plan.price.annual.toLocaleString()}/year
+                          </p>
+                        )}
                       </div>
                     )}
                   </div>
@@ -178,9 +185,11 @@ export default function LandingPricing() {
                   {comparisonFeatures.map((feat) => (
                     <tr key={feat.feature} className="border-b border-gray-200 dark:border-gray-700">
                       <td className="p-4 text-gray-700 dark:text-gray-300 font-medium">{feat.feature}</td>
-                      <td className="p-4 text-center">{typeof feat.starter === "boolean" ? (feat.starter ? <CheckIcon /> : <CrossIcon />) : <span className="text-gray-500 dark:text-gray-400 text-sm">{feat.starter}</span>}</td>
-                      <td className="p-4 text-center">{typeof feat.pro === "boolean" ? (feat.pro ? <CheckIcon /> : <CrossIcon />) : <span className="text-gray-500 dark:text-gray-400 text-sm">{feat.pro}</span>}</td>
-                      <td className="p-4 text-center">{typeof feat.enterprise === "boolean" ? (feat.enterprise ? <CheckIcon /> : <CrossIcon />) : <span className="text-gray-500 dark:text-gray-400 text-sm">{feat.enterprise}</span>}</td>
+                      {([feat.free, feat.growth, feat.pro] as const).map((cell, ci) => (
+                        <td key={ci} className="p-4 text-center">
+                          {typeof cell === "boolean" ? (cell ? <CheckIcon /> : <CrossIcon />) : <span className="text-gray-500 dark:text-gray-400 text-sm">{cell}</span>}
+                        </td>
+                      ))}
                     </tr>
                   ))}
                 </tbody>
@@ -206,7 +215,7 @@ export default function LandingPricing() {
                     className="w-full flex items-center justify-between p-6 text-left text-gray-800 dark:text-white font-medium hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                   >
                     {faq.question}
-                    <span className={`ml-4 flex-shrink-0 transform transition-transform ${openFaq === i ? "rotate-180" : ""}`}>▼</span>
+                    <ChevronDown className={`ml-4 h-5 w-5 flex-shrink-0 text-gray-400 transform transition-transform ${openFaq === i ? "rotate-180" : ""}`} />
                   </button>
                   {openFaq === i && (
                     <div className="px-6 pb-6 text-gray-500 dark:text-gray-400">{faq.answer}</div>

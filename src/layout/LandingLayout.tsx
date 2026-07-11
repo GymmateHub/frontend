@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation, Outlet } from "react-router";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Mail, Phone, MapPin, Sun, Moon } from "lucide-react";
@@ -6,7 +6,7 @@ import { useTheme } from "../context/ThemeContext";
 
 const navigation = [
   { name: "Home", href: "/" },
-  { name: "Services", href: "/services" },
+  { name: "Features", href: "/features" },
   { name: "Pricing", href: "/pricing" },
   { name: "About", href: "/about" },
   { name: "Contact", href: "/contact" },
@@ -14,11 +14,27 @@ const navigation = [
 
 function LandingHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
   const { theme, toggleTheme } = useTheme();
 
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const solid = scrolled || mobileMenuOpen;
+
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 shadow-sm">
+    <header
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        solid
+          ? "bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 shadow-theme-sm"
+          : "bg-transparent border-b border-transparent"
+      }`}
+    >
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           <Link to="/" className="flex-shrink-0 flex items-center gap-2">
@@ -28,25 +44,37 @@ function LandingHeader() {
             <span className="font-bold text-gray-800 dark:text-white text-lg">GymMateHub</span>
           </Link>
 
-          <div className="hidden md:flex items-center space-x-8">
-            {navigation.map((item) => (
-              <Link
-                key={item.name}
-                to={item.href}
-                className={`text-sm font-medium transition-colors relative ${
-                  location.pathname === item.href
-                    ? "text-brand-500"
-                    : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
-                }`}
-              >
-                {item.name}
-              </Link>
-            ))}
+          <div className="hidden md:flex items-center gap-1">
+            {navigation.map((item) => {
+              const isActive = location.pathname === item.href;
+              return (
+                <Link
+                  key={item.name}
+                  to={item.href}
+                  aria-current={isActive ? "page" : undefined}
+                  className={`relative px-4 py-2 text-sm font-medium transition-colors ${
+                    isActive
+                      ? "text-brand-500"
+                      : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+                  }`}
+                >
+                  {item.name}
+                  {isActive && (
+                    <motion.span
+                      layoutId="nav-active"
+                      transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                      className="absolute inset-x-4 -bottom-0.5 h-0.5 rounded-full bg-brand-500"
+                    />
+                  )}
+                </Link>
+              );
+            })}
           </div>
 
           <div className="hidden md:flex items-center gap-3">
             <button
               onClick={toggleTheme}
+              aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
               className="rounded-full p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white"
             >
               {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
@@ -67,6 +95,8 @@ function LandingHeader() {
 
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={mobileMenuOpen}
             className="md:hidden p-2 rounded-lg text-gray-600 dark:text-gray-300"
           >
             {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -97,6 +127,13 @@ function LandingHeader() {
                     {item.name}
                   </Link>
                 ))}
+                <button
+                  onClick={toggleTheme}
+                  className="flex w-full items-center gap-3 px-4 py-3 rounded-lg text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                >
+                  {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+                  {theme === "dark" ? "Light mode" : "Dark mode"}
+                </button>
                 <div className="px-4 pt-2 flex flex-col gap-2">
                   <Link to="/login" className="block w-full text-center py-3 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-semibold">
                     Sign In
@@ -114,36 +151,24 @@ function LandingHeader() {
   );
 }
 
-
-const SocialFb = ({ className }: { className?: string }) => <svg viewBox="0 0 24 24" fill="currentColor" className={className ?? "h-5 w-5"}><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>;
-const SocialTw = ({ className }: { className?: string }) => <svg viewBox="0 0 24 24" fill="currentColor" className={className ?? "h-5 w-5"}><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>;
-const SocialLi = ({ className }: { className?: string }) => <svg viewBox="0 0 24 24" fill="currentColor" className={className ?? "h-5 w-5"}><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>;
 function LandingFooter() {
   const footerLinks = {
     product: [
-      { name: "Features", href: "/services" },
+      { name: "Features", href: "/features" },
       { name: "Pricing", href: "/pricing" },
-      { name: "Demo", href: "/contact" },
-      { name: "Updates", href: "/about" },
+      { name: "Sign In", href: "/login" },
+      { name: "Start Free", href: "/register" },
     ],
     company: [
       { name: "About Us", href: "/about" },
-      { name: "Careers", href: "/contact" },
-    ],
-    support: [
-      { name: "Help Center", href: "/contact" },
       { name: "Contact", href: "/contact" },
-    ],
-    legal: [
-      { name: "Privacy Policy", href: "#" },
-      { name: "Terms of Service", href: "#" },
     ],
   };
 
   return (
     <footer className="bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8 lg:gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-12">
           <div className="lg:col-span-2">
             <Link to="/" className="flex items-center gap-2 mb-4">
               <div className="h-8 w-8 rounded-lg bg-brand-500 flex items-center justify-center">
@@ -170,7 +195,7 @@ function LandingFooter() {
             </div>
           </div>
 
-          <nav className="col-span-1 md:col-span-1 lg:col-span-4 grid grid-cols-2 md:grid-cols-4 gap-8">
+          <nav className="lg:col-span-3 grid grid-cols-2 gap-8">
             {Object.entries(footerLinks).map(([category, links]) => (
               <div key={category}>
                 <span className="text-gray-800 dark:text-white font-semibold text-sm mb-4 block capitalize">{category}</span>
@@ -190,16 +215,9 @@ function LandingFooter() {
 
         <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-800 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-gray-500 dark:text-gray-400 text-sm">
-            &copy; 2025 GymMateHub. All rights reserved.
+            &copy; {new Date().getFullYear()} GymMateHub. All rights reserved.
           </p>
-          <div className="flex items-center gap-4">
-            {[{ name: "Facebook", Icon: SocialFb }, { name: "Twitter", Icon: SocialTw }, { name: "LinkedIn", Icon: SocialLi }].map(({ name, Icon }) => (
-              <a key={name} href="#" className="text-gray-400 hover:text-brand-500 transition-colors p-2 rounded-full border border-gray-200 dark:border-gray-700">
-                <span className="sr-only">{name}</span>
-                <Icon className="h-4 w-4" />
-              </a>
-            ))}
-          </div>
+          <p className="text-gray-400 dark:text-gray-500 text-sm">Built in Lagos, for gyms everywhere.</p>
         </div>
       </div>
     </footer>
@@ -217,6 +235,3 @@ export default function LandingLayout() {
     </div>
   );
 }
-
-
-

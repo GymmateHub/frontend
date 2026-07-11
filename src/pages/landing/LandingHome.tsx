@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ArrowRight, Play, CheckCircle2, Users, TrendingUp, Zap, Shield, BarChart3, Calendar } from "lucide-react";
+import { ArrowRight, Play, CheckCircle2, Users, Zap, Shield, BarChart3, Calendar, MessageSquare } from "lucide-react";
 import { Link } from "react-router";
 import PageMeta from "../../components/common/PageMeta";
 
@@ -26,10 +26,7 @@ export default function LandingHome() {
 
       {/* Hero */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
-        <div className="absolute inset-0">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-brand-500/20 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-pulse [animation-delay:1s]" />
-        </div>
+        <div className="absolute inset-0 bg-gradient-to-b from-brand-500/10 via-transparent to-transparent" />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -65,7 +62,7 @@ export default function LandingHome() {
                   <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                 </Link>
                 <Link
-                  to="/services"
+                  to="/features"
                   className="group inline-flex items-center justify-center px-8 py-4 bg-gray-100 hover:bg-gray-200 dark:bg-white/5 dark:hover:bg-white/10 text-gray-700 dark:text-white font-semibold rounded-xl transition-all duration-300 border border-gray-200 dark:border-gray-700"
                 >
                   <Play className="mr-2 h-5 w-5" />
@@ -151,18 +148,18 @@ export default function LandingHome() {
                 </div>
               </motion.div>
 
-              {/* Floating card — top right */}
+              {/* Floating card — top right: the differentiator */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 1.2 }}
-                className="absolute top-0 right-0 bg-white dark:bg-gray-800 backdrop-blur-md border border-gray-200 dark:border-gray-700 rounded-xl p-4 shadow-xl"
+                className="absolute top-0 right-0 max-w-[240px] bg-white dark:bg-gray-800 backdrop-blur-md border border-gray-200 dark:border-gray-700 rounded-xl p-4 shadow-xl"
               >
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-50 dark:bg-blue-500/10 rounded-lg">
-                    <TrendingUp className="h-5 w-5 text-blue-500" />
+                <div className="flex items-start gap-3">
+                  <div className="p-2 bg-success-50 dark:bg-success-500/10 rounded-lg flex-shrink-0">
+                    <MessageSquare className="h-5 w-5 text-success-500" />
                   </div>
                   <div>
-                    <p className="text-xl font-bold text-gray-800 dark:text-white">₦0</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">To Get Started</p>
+                    <p className="text-sm font-bold text-gray-800 dark:text-white">Renewal reminder sent</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">to Chioma · via WhatsApp, automatically</p>
                   </div>
                 </div>
               </motion.div>
@@ -216,10 +213,10 @@ export default function LandingHome() {
           >
             <Zap className="h-12 w-12 text-brand-500 mx-auto mb-4" />
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-800 dark:text-white mb-4">
-              Ready to Transform Your Gym?
+              Stop chasing renewals. Start this week.
             </h2>
             <p className="text-lg text-gray-500 dark:text-gray-400 mb-8 max-w-2xl mx-auto">
-              Join gyms across Africa using GymMateHub to streamline operations and stop missing renewals.
+              Free for your first 20 members — add your list this afternoon and let WhatsApp do the chasing.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/register" className="px-8 py-4 bg-brand-500 hover:bg-brand-600 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg hover:scale-105">

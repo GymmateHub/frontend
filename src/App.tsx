@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router";
 import { AuthProvider } from "./auth/auth.store";
 import { ProtectedRoute, PublicRoute } from "./auth/require-auth";
 import { ScrollToTop } from "./components/common/ScrollToTop";
@@ -9,7 +9,7 @@ import LandingLayout from "./layout/LandingLayout";
 
 // Landing pages
 import LandingHome from "./pages/landing/LandingHome";
-import LandingServices from "./pages/landing/LandingServices";
+import LandingFeatures from "./pages/landing/LandingFeatures";
 import LandingAbout from "./pages/landing/LandingAbout";
 import LandingPricing from "./pages/landing/LandingPricing";
 import LandingContact from "./pages/landing/LandingContact";
@@ -55,7 +55,8 @@ export default function App() {
           {/* ── Landing (public, own header/footer) ── */}
           <Route element={<LandingLayout />}>
             <Route index path="/" element={<LandingHome />} />
-            <Route path="/services" element={<LandingServices />} />
+            <Route path="/features" element={<LandingFeatures />} />
+            <Route path="/services" element={<Navigate to="/features" replace />} />
             <Route path="/about" element={<LandingAbout />} />
             <Route path="/pricing" element={<LandingPricing />} />
             <Route path="/contact" element={<LandingContact />} />
