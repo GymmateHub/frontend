@@ -13,6 +13,7 @@ import React, {
 import { useNavigate } from "react-router";
 import apiClient from "@/api/axios";
 import { AUTH } from "@/api/endpoints";
+import { canAccess, homeFor } from "./permissions";
 import type {
   StoredUser,
   LoginRequest,
@@ -273,9 +274,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     initAuth();
   }, []);
 
-  const login = async (credentials: LoginRequest) => {
+  // NOTE: login deliberately does NOT toggle the global `isLoading` flag —
+  // that flag drives full-page spinners in ProtectedRoute/PublicRoute and is
+  // reserved for the initial auth bootstrap. Forms show their own pending
+  // state (e.g. react-hook-form's isSubmitting) on the submit button.
+  const login = async (credentials: LoginRequest, redirectTo?: string) => {
     try {
-      setIsLoading(true);
       const response = await authAPI.login(credentials);
 
       if (response.success && response.data) {
@@ -329,16 +333,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         authStorage.setUser(userData);
         setUser(userData);
 
-        // Navigate to dashboard
-        navigate("/");
+        // Navigate to the page the user originally wanted (if their role can
+        // open it), otherwise to their role's home screen.
+        const target =
+          redirectTo && canAccess(role, redirectTo) ? redirectTo : homeFor(role);
+        navigate(target, { replace: true });
       } else {
         throw new Error(response.message || "Login failed");
       }
     } catch (error) {
       console.error("Login error:", error);
-      throw error;
-    } finally {
-      setIsLoading(false);
+      throw new Error(getErrorMessage(error));
     }
   };
 

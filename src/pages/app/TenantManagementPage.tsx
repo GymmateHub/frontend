@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Building2, MoreHorizontal, Filter } from "lucide-react";
 import PageMeta from "../../components/common/PageMeta";
+import { useTenants } from "../../features/admin/admin.hooks";
 
 type StatusFilter = "all" | "active" | "suspended" | "pending";
 
@@ -17,14 +18,6 @@ const planConfig: Record<string, string> = {
   enterprise: "bg-purple-100 text-purple-700 dark:bg-purple-500/15 dark:text-purple-400",
 };
 
-// Placeholder tenants for super admin view
-const sampleTenants = [
-  { id: "1", name: "FitZone Gyms", owner: "Alice Johnson", gymsCount: 3, membersCount: 540, plan: "enterprise", status: "active" },
-  { id: "2", name: "Peak Performance", owner: "Bob Smith", gymsCount: 1, membersCount: 120, plan: "professional", status: "active" },
-  { id: "3", name: "Iron Will Fitness", owner: "Carol Davis", gymsCount: 2, membersCount: 310, plan: "professional", status: "suspended" },
-  { id: "4", name: "Flex Studio", owner: "Dan Martinez", gymsCount: 1, membersCount: 45, plan: "starter", status: "pending" },
-];
-
 const filterOptions: { key: StatusFilter; label: string }[] = [
   { key: "all", label: "All" },
   { key: "active", label: "Active" },
@@ -36,31 +29,49 @@ export default function TenantManagementPage() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [search, setSearch] = useState("");
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
+  const { data: tenants = [], isLoading } = useTenants();
+  // Menu is rendered position:fixed so the table's scroll container can't
+  // clip it; we anchor it to the trigger button's viewport coordinates.
+  const [menuPos, setMenuPos] = useState<{ top: number; right: number } | null>(null);
 
-  const filtered = sampleTenants
+  const toggleMenu = (e: React.MouseEvent<HTMLButtonElement>, id: string) => {
+    if (activeMenu === id) {
+      setActiveMenu(null);
+      return;
+    }
+    const rect = e.currentTarget.getBoundingClientRect();
+    setMenuPos({ top: rect.bottom + 4, right: window.innerWidth - rect.right });
+    setActiveMenu(id);
+  };
+
+  const filtered = tenants
     .filter((t) => statusFilter === "all" || t.status === statusFilter)
-    .filter((t) => `${t.name} ${t.owner}`.toLowerCase().includes(search.toLowerCase()));
+    .filter((t) =>
+      `${t.name} ${t.ownerName ?? ""}`.toLowerCase().includes(search.toLowerCase())
+    );
 
   return (
     <>
       <PageMeta title="Tenant Management | GymMate" description="Super admin tenant management" />
 
-      <div className="space-y-6">
+      <div className="flex min-h-[calc(100vh-120px)] flex-col gap-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-800 dark:text-white/90">Tenant Management</h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{sampleTenants.length} organizations</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              {isLoading ? "Loading..." : `${tenants.length} organizations`}
+            </p>
           </div>
         </div>
 
         {/* Stats Row */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[
-            { label: "Total", value: sampleTenants.length, color: "text-gray-800 dark:text-white/90" },
-            { label: "Active", value: sampleTenants.filter((t) => t.status === "active").length, color: "text-success-600 dark:text-success-400" },
-            { label: "Suspended", value: sampleTenants.filter((t) => t.status === "suspended").length, color: "text-error-600 dark:text-error-400" },
-            { label: "Pending", value: sampleTenants.filter((t) => t.status === "pending").length, color: "text-warning-600 dark:text-warning-400" },
+            { label: "Total", value: tenants.length, color: "text-gray-800 dark:text-white/90" },
+            { label: "Active", value: tenants.filter((t) => t.status === "active").length, color: "text-success-600 dark:text-success-400" },
+            { label: "Suspended", value: tenants.filter((t) => t.status === "suspended").length, color: "text-error-600 dark:text-error-400" },
+            { label: "Pending", value: tenants.filter((t) => t.status === "pending").length, color: "text-warning-600 dark:text-warning-400" },
           ].map((s) => (
             <div key={s.label} className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] p-4 text-center">
               <p className={`text-2xl font-bold ${s.color}`}>{s.value}</p>
@@ -95,9 +106,9 @@ export default function TenantManagementPage() {
           </div>
         </div>
 
-        {/* Table */}
-        <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] overflow-hidden">
-          <div className="overflow-x-auto">
+        {/* Table — flex-1 so the card takes the remainder of the page */}
+        <div className="flex flex-1 flex-col rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] overflow-hidden">
+          <div className="flex-1 overflow-x-auto">
             <table className="w-full text-left">
               <thead>
                 <tr className="border-b border-gray-100 dark:border-gray-800">
@@ -111,7 +122,13 @@ export default function TenantManagementPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-                {filtered.length === 0 ? (
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={7} className="px-6 py-16 text-center">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Loading tenants...</p>
+                    </td>
+                  </tr>
+                ) : filtered.length === 0 ? (
                   <tr>
                     <td colSpan={7} className="px-6 py-16 text-center">
                       <Building2 className="h-10 w-10 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
@@ -121,7 +138,7 @@ export default function TenantManagementPage() {
                 ) : (
                   filtered.map((tenant) => {
                     const statusColor = statusConfig[tenant.status] ?? statusConfig.inactive;
-                    const planColor = planConfig[tenant.plan] ?? planConfig.starter;
+                    const planColor = planConfig[tenant.plan ?? ""] ?? planConfig.starter;
                     return (
                       <tr key={tenant.id} className="hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors">
                         <td className="px-6 py-4">
@@ -132,29 +149,20 @@ export default function TenantManagementPage() {
                             <p className="text-sm font-medium text-gray-800 dark:text-white/90">{tenant.name}</p>
                           </div>
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{tenant.owner}</td>
-                        <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{tenant.gymsCount}</td>
-                        <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{tenant.membersCount.toLocaleString()}</td>
+                        <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{tenant.ownerName ?? "—"}</td>
+                        <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{tenant.gymCount}</td>
+                        <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{tenant.memberCount.toLocaleString()}</td>
                         <td className="px-6 py-4">
-                          <span className={`px-2.5 py-1 rounded-full text-xs font-medium capitalize ${planColor}`}>{tenant.plan}</span>
+                          <span className={`px-2.5 py-1 rounded-full text-xs font-medium capitalize ${planColor}`}>{tenant.plan ?? "starter"}</span>
                         </td>
                         <td className="px-6 py-4">
                           <span className={`px-2.5 py-1 rounded-full text-xs font-medium capitalize ${statusColor}`}>{tenant.status}</span>
                         </td>
                         <td className="px-6 py-4">
-                          <div className="relative">
-                            <button onClick={() => setActiveMenu(activeMenu === tenant.id ? null : tenant.id)}
-                              className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 text-gray-500 dark:text-gray-400 transition-colors">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </button>
-                            {activeMenu === tenant.id && (
-                              <div className="absolute right-0 top-8 z-10 w-40 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg py-1">
-                                <button onClick={() => setActiveMenu(null)} className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5">View Details</button>
-                                <button onClick={() => setActiveMenu(null)} className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5">Change Plan</button>
-                                <button onClick={() => setActiveMenu(null)} className="w-full text-left px-4 py-2 text-sm text-error-600 hover:bg-error-50 dark:hover:bg-error-500/10">Suspend</button>
-                              </div>
-                            )}
-                          </div>
+                          <button onClick={(e) => toggleMenu(e, tenant.id)}
+                            className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 text-gray-500 dark:text-gray-400 transition-colors">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </button>
                         </td>
                       </tr>
                     );
@@ -165,6 +173,22 @@ export default function TenantManagementPage() {
           </div>
         </div>
       </div>
+
+      {/* Actions menu — fixed position so it overlays instead of being
+          clipped by the table's scroll container */}
+      {activeMenu && menuPos && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setActiveMenu(null)} />
+          <div
+            className="fixed z-50 w-40 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg py-1"
+            style={{ top: menuPos.top, right: menuPos.right }}
+          >
+            <button onClick={() => setActiveMenu(null)} className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5">View Details</button>
+            <button onClick={() => setActiveMenu(null)} className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5">Change Plan</button>
+            <button onClick={() => setActiveMenu(null)} className="w-full text-left px-4 py-2 text-sm text-error-600 hover:bg-error-50 dark:hover:bg-error-500/10">Suspend</button>
+          </div>
+        </>
+      )}
     </>
   );
 }

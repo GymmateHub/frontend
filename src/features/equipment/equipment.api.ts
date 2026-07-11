@@ -81,20 +81,35 @@ export interface MaintenanceRecordResponse {
   createdAt: string;
 }
 
+// Mirrors backend EquipmentCreateRequest (inventory/api/dto)
 export interface EquipmentCreateRequest {
   name: string;
+  category: string; // EquipmentCategory enum value, e.g. CARDIO
+  gymId: string;
   description?: string;
-  category: string;
-  brand?: string;
+  manufacturer?: string;
   model?: string;
   serialNumber?: string;
   purchaseDate?: string;
   purchasePrice?: number;
   warrantyExpiryDate?: string;
-  location?: string;
+  locationNotes?: string;
   maintenanceIntervalDays?: number;
   notes?: string;
 }
+
+export const EQUIPMENT_CATEGORIES = [
+  "CARDIO",
+  "STRENGTH",
+  "FUNCTIONAL",
+  "BOXING",
+  "YOGA",
+  "SWIMMING",
+  "SPORTS",
+  "ACCESSIBILITY",
+  "RECOVERY",
+  "OTHER",
+] as const;
 
 export interface MaintenanceScheduleCreateRequest {
   equipmentId: string;

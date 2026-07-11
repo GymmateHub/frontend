@@ -154,7 +154,7 @@ export interface AuthContextType {
   user: StoredUser | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (credentials: LoginRequest) => Promise<void>;
+  login: (credentials: LoginRequest, redirectTo?: string) => Promise<void>;
   logout: () => Promise<void>;
   refreshUserData: () => void;
   switchGym: (gymId: string) => Promise<void>;

@@ -1,7 +1,15 @@
 ﻿import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { Dumbbell, Plus, CheckCircle, AlertTriangle, XCircle, Wrench } from "lucide-react";
 import PageMeta from "../../components/common/PageMeta";
-import { useEquipmentByOrganisation, useEquipmentStats } from "../../features/equipment/equipment.hooks";
+import { Modal } from "../../components/ui/modal";
+import Button from "../../components/ui/button/Button";
+import Input from "../../components/form/input/InputField";
+import Label from "../../components/form/Label";
+import { useModal } from "../../hooks/useModal";
+import { useEquipmentByOrganisation, useEquipmentStats, useCreateEquipment } from "../../features/equipment/equipment.hooks";
+import { EQUIPMENT_CATEGORIES, type EquipmentCreateRequest } from "../../features/equipment/equipment.api";
+import { useGyms } from "../../features/gyms/gyms.hooks";
 
 const statusConfig: Record<string, { label: string; color: string }> = {
   OPERATIONAL: { label: "Operational", color: "bg-success-100 text-success-700 dark:bg-success-500/15 dark:text-success-400" },
@@ -32,6 +40,31 @@ export default function EquipmentPage() {
   const { data: equipment = [], isLoading } = useEquipmentByOrganisation();
   const { data: stats } = useEquipmentStats();
   const [search, setSearch] = useState("");
+  const { isOpen, openModal, closeModal } = useModal();
+  const { data: gyms = [] } = useGyms();
+  const createEquipment = useCreateEquipment();
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<EquipmentCreateRequest>();
+
+  const onSubmit = async (data: EquipmentCreateRequest) => {
+    await createEquipment.mutateAsync({
+      ...data,
+      // Empty optional fields must not be sent as ""
+      purchasePrice: data.purchasePrice || undefined,
+      purchaseDate: data.purchaseDate || undefined,
+      serialNumber: data.serialNumber || undefined,
+      manufacturer: data.manufacturer || undefined,
+      model: data.model || undefined,
+      notes: data.notes || undefined,
+    });
+    reset();
+    closeModal();
+  };
 
   const filtered = equipment.filter((e: any) =>
     `${e.name} ${e.brand ?? ""}`.toLowerCase().includes(search.toLowerCase())
@@ -48,7 +81,10 @@ export default function EquipmentPage() {
             <h1 className="text-2xl font-bold text-gray-800 dark:text-white/90">Equipment</h1>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{equipment.length} total items</p>
           </div>
-          <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium transition-colors">
+          <button
+            onClick={openModal}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium transition-colors"
+          >
             <Plus className="h-4 w-4" />
             Add Equipment
           </button>
@@ -114,6 +150,111 @@ export default function EquipmentPage() {
           </div>
         )}
       </div>
+
+      {/* Add Equipment Modal */}
+      <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[600px] m-4">
+        <div className="no-scrollbar relative w-full max-w-[600px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-10">
+          <div className="px-2 pr-14">
+            <h4 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
+              Add Equipment
+            </h4>
+            <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
+              Register a new piece of equipment for one of your gyms.
+            </p>
+          </div>
+          <form className="flex flex-col" onSubmit={handleSubmit(onSubmit)}>
+            <div className="px-2 pb-3 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+              <div className="col-span-2 lg:col-span-1">
+                <Label>
+                  Name <span className="text-error-500">*</span>
+                </Label>
+                <Input
+                  type="text"
+                  placeholder="e.g. Treadmill X-500"
+                  error={!!errors.name}
+                  {...register("name", { required: true })}
+                />
+              </div>
+
+              <div className="col-span-2 lg:col-span-1">
+                <Label>
+                  Category <span className="text-error-500">*</span>
+                </Label>
+                <select
+                  className="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:border-brand-300 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
+                  {...register("category", { required: true })}
+                >
+                  {EQUIPMENT_CATEGORIES.map((c) => (
+                    <option key={c} value={c}>
+                      {c.charAt(0) + c.slice(1).toLowerCase()}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="col-span-2">
+                <Label>
+                  Gym <span className="text-error-500">*</span>
+                </Label>
+                <select
+                  className="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:border-brand-300 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
+                  {...register("gymId", { required: true })}
+                >
+                  {gyms.map((g: { id: string; name: string }) => (
+                    <option key={g.id} value={g.id}>
+                      {g.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="col-span-2 lg:col-span-1">
+                <Label>Manufacturer</Label>
+                <Input type="text" placeholder="e.g. Life Fitness" {...register("manufacturer")} />
+              </div>
+
+              <div className="col-span-2 lg:col-span-1">
+                <Label>Model</Label>
+                <Input type="text" placeholder="e.g. T5" {...register("model")} />
+              </div>
+
+              <div className="col-span-2 lg:col-span-1">
+                <Label>Serial Number</Label>
+                <Input type="text" {...register("serialNumber")} />
+              </div>
+
+              <div className="col-span-2 lg:col-span-1">
+                <Label>Purchase Date</Label>
+                <Input type="date" {...register("purchaseDate")} />
+              </div>
+
+              <div className="col-span-2 lg:col-span-1">
+                <Label>Purchase Price</Label>
+                <Input
+                  type="number"
+                  min="0"
+                  step={0.01}
+                  placeholder="0.00"
+                  {...register("purchasePrice", { valueAsNumber: true })}
+                />
+              </div>
+
+              <div className="col-span-2 lg:col-span-1">
+                <Label>Notes</Label>
+                <Input type="text" placeholder="Optional notes" {...register("notes")} />
+              </div>
+            </div>
+            <div className="flex items-center gap-3 px-2 mt-6 lg:justify-end">
+              <Button size="sm" variant="outline" type="button" onClick={closeModal}>
+                Cancel
+              </Button>
+              <Button size="sm" disabled={isSubmitting}>
+                {isSubmitting ? "Adding..." : "Add Equipment"}
+              </Button>
+            </div>
+          </form>
+        </div>
+      </Modal>
     </>
   );
 }

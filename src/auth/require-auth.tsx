@@ -1,6 +1,7 @@
 import React from "react";
 import { Navigate, useLocation } from "react-router";
 import { useAuth } from "./auth.store";
+import { canAccess, homeFor } from "./permissions";
 
 const LoadingSpinner: React.FC = () => (
   <div className="flex h-screen w-full items-center justify-center">
@@ -30,6 +31,12 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to="/unauthorized" replace />;
   }
 
+  // Central role gating from the SCREEN_ACCESS map — a user landing on a
+  // screen their role can't open is sent to their own home screen.
+  if (user && !canAccess(user.role, location.pathname)) {
+    return <Navigate to={homeFor(user.role)} replace />;
+  }
+
   return <>{children}</>;
 };
 
@@ -38,11 +45,11 @@ interface PublicRouteProps {
 }
 
 export const PublicRoute: React.FC<PublicRouteProps> = ({ children }) => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
 
   if (isLoading) return <LoadingSpinner />;
 
-  if (isAuthenticated) return <Navigate to="/" replace />;
+  if (isAuthenticated) return <Navigate to={homeFor(user?.role)} replace />;
 
   return <>{children}</>;
 };

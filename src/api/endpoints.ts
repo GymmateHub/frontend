@@ -17,6 +17,11 @@ export const AUTH = {
   CURRENT_GYM: "/auth/current-gym",
 } as const;
 
+export const ADMIN = {
+  OVERVIEW: "/admin/overview",
+  ORGANISATIONS: "/admin/organisations",
+} as const;
+
 export const ORGANISATIONS = {
   CURRENT: "/organisations/current",
   USAGE: "/organisations/current/usage",
@@ -324,6 +329,7 @@ export const STRIPE_CONNECT = {
 
 export const USERS = {
   BASE: "/users",
+  ME: "/users/me",
   BY_ID: (id: string) => `/users/${id}`,
   PROFILE: (id: string) => `/users/${id}/profile`,
   ACTIVATE: (id: string) => `/users/${id}/activate`,

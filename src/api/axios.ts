@@ -139,6 +139,20 @@ const processQueue = (
   failedQueue = [];
 };
 
+// A 401 from these endpoints means the credentials/token in the request body
+// were rejected — NOT that the session expired. They must never trigger the
+// token-refresh flow or a redirect to /login (which reloads the page and
+// destroys any error message the form is trying to show).
+const AUTH_401_EXEMPT_PATHS = [
+  "/auth/login",
+  "/auth/refresh",
+  "/auth/register",
+  "/auth/password-reset",
+];
+
+const isAuth401Exempt = (url?: string): boolean =>
+  !!url && AUTH_401_EXEMPT_PATHS.some((path) => url.includes(path));
+
 apiClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError<ApiError>) => {
@@ -147,7 +161,11 @@ apiClient.interceptors.response.use(
     };
 
     // Handle 401 Unauthorized - Token refresh
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !isAuth401Exempt(originalRequest.url)
+    ) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });

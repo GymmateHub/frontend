@@ -23,6 +23,7 @@ import VerifyEmail from "./pages/AuthPages/VerifyEmail";
 
 // App pages
 import DashboardPage from "./pages/app/DashboardPage";
+import AdminDashboardPage from "./pages/app/AdminDashboardPage";
 import MembersPage from "./pages/app/MembersPage";
 import MembershipPlansPage from "./pages/app/MembershipPlansPage";
 import ClassesPage from "./pages/app/ClassesPage";
@@ -45,6 +46,7 @@ import Calendar from "./pages/Calendar";
 import UserProfiles from "./pages/UserProfiles";
 import NotFound from "./pages/OtherPage/NotFound";
 import Unauthorized from "./pages/OtherPage/Unauthorized";
+import MemberAppNotice from "./pages/OtherPage/MemberAppNotice";
 
 export default function App() {
   return (
@@ -76,6 +78,7 @@ export default function App() {
           {/* ── App (protected, sidebar layout) ── */}
           <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
             <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/admin-dashboard" element={<AdminDashboardPage />} />
             <Route path="/members" element={<MembersPage />} />
             <Route path="/plans" element={<MembershipPlansPage />} />
             <Route path="/classes" element={<ClassesPage />} />
@@ -92,23 +95,21 @@ export default function App() {
             <Route path="/notifications" element={<NotificationsPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/profile" element={<UserProfiles />} />
-            <Route
-              path="/gym-management"
-              element={
-                <ProtectedRoute allowedRoles={["OWNER", "MANAGER", "ADMIN"]}>
-                  <GymManagementPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/tenant-management"
-              element={
-                <ProtectedRoute allowedRoles={["SUPER_ADMIN"]}>
-                  <TenantManagementPage />
-                </ProtectedRoute>
-              }
-            />
+            {/* Role access is enforced centrally by ProtectedRoute via
+                src/auth/permissions.ts (SCREEN_ACCESS) */}
+            <Route path="/gym-management" element={<GymManagementPage />} />
+            <Route path="/tenant-management" element={<TenantManagementPage />} />
           </Route>
+
+          {/* Members are mobile-first — web shows a notice (no sidebar) */}
+          <Route
+            path="/member-app"
+            element={
+              <ProtectedRoute>
+                <MemberAppNotice />
+              </ProtectedRoute>
+            }
+          />
 
           {/* ── Misc ── */}
           <Route path="/unauthorized" element={<Unauthorized />} />

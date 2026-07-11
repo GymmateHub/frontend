@@ -1,44 +1,58 @@
-import { useState } from "react";
-import { Link } from "react-router";
+import { useEffect, useState } from "react";
+import { Link, useLocation } from "react-router";
 import { useForm } from "react-hook-form";
-import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "../../icons";
+import { toast } from "sonner";
+import { EyeCloseIcon, EyeIcon } from "../../icons";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
-import Checkbox from "../form/input/Checkbox";
 import Button from "../ui/button/Button";
 import { useAuth } from "../../auth/auth.store";
 import type { LoginRequest } from "../../auth/auth.types";
 
 export default function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
-  const [isChecked, setIsChecked] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { login, isLoading } = useAuth();
+  const { login } = useAuth();
+  const location = useLocation();
+  // Where ProtectedRoute sent us from, if the user tried a deep link.
+  // No fallback here — the auth store picks the role's home screen.
+  const from = (location.state as { from?: { pathname?: string } })?.from
+    ?.pathname;
 
-  const { register, handleSubmit } = useForm<LoginRequest>();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginRequest>();
+
+  // Auto-dismiss the inline error banner after 5 seconds:
+  // fade it out first, then unmount once the transition has finished.
+  const [errorVisible, setErrorVisible] = useState(false);
+  useEffect(() => {
+    if (!error) return;
+    setErrorVisible(true);
+    const hideTimer = setTimeout(() => setErrorVisible(false), 5000);
+    const clearTimer = setTimeout(() => setError(null), 5500);
+    return () => {
+      clearTimeout(hideTimer);
+      clearTimeout(clearTimer);
+    };
+  }, [error]);
 
   const onSubmit = async (data: LoginRequest) => {
     try {
       setError(null);
-      await login(data);
+      await login(data, from);
     } catch (err: unknown) {
       const msg =
         err instanceof Error ? err.message : "Invalid email or password";
       setError(msg);
+      toast.error(msg);
     }
   };
 
   return (
     <div className="flex flex-col flex-1">
-      <div className="w-full max-w-md pt-10 mx-auto">
-        <Link
-          to="/"
-          className="inline-flex items-center text-sm text-gray-500 transition-colors hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-        >
-          <ChevronLeftIcon className="size-5" />
-          Back to home
-        </Link>
-      </div>
       <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
         <div>
           <div className="mb-5 sm:mb-8">
@@ -46,12 +60,16 @@ export default function SignInForm() {
               Sign In
             </h1>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Enter your email and password to sign in!
+              Welcome back to GymMateHub
             </p>
           </div>
 
           {error && (
-            <div className="mb-4 rounded-lg bg-error-50 px-4 py-3 text-sm text-error-600 dark:bg-error-500/10 dark:text-error-400">
+            <div
+              className={`mb-4 rounded-lg bg-error-50 px-4 py-3 text-sm text-error-600 transition-all duration-500 ease-out dark:bg-error-500/10 dark:text-error-400 ${
+                errorVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-1"
+              }`}
+            >
               {error}
             </div>
           )}
@@ -65,6 +83,8 @@ export default function SignInForm() {
                 <Input
                   type="email"
                   placeholder="info@gmail.com"
+                  error={!!errors.email}
+                  hint={errors.email ? "Email is required" : undefined}
                   {...register("email", { required: true })}
                 />
               </div>
@@ -76,6 +96,8 @@ export default function SignInForm() {
                   <Input
                     type={showPassword ? "text" : "password"}
                     placeholder="Enter your password"
+                    error={!!errors.password}
+                    hint={errors.password ? "Password is required" : undefined}
                     {...register("password", { required: true })}
                   />
                   <span
@@ -90,13 +112,7 @@ export default function SignInForm() {
                   </span>
                 </div>
               </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Checkbox checked={isChecked} onChange={setIsChecked} />
-                  <span className="block font-normal text-gray-700 text-theme-sm dark:text-gray-400">
-                    Keep me logged in
-                  </span>
-                </div>
+              <div className="flex items-center justify-end">
                 <Link
                   to="/forgot-password"
                   className="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400"
@@ -108,9 +124,14 @@ export default function SignInForm() {
                 <Button
                   className="w-full"
                   size="sm"
-                  disabled={isLoading}
+                  disabled={isSubmitting}
+                  startIcon={
+                    isSubmitting ? (
+                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    ) : undefined
+                  }
                 >
-                  {isLoading ? "Signing in..." : "Sign in"}
+                  {isSubmitting ? "Signing in..." : "Sign in"}
                 </Button>
               </div>
             </div>

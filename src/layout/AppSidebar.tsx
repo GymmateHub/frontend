@@ -1,23 +1,18 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation } from "react-router";
 
 // Assume these icons are imported from an icon library
 import {
   GridIcon,
   ChevronDownIcon,
-  HorizontaLDots,
   UserCircleIcon,
   PieChartIcon,
-  CalenderIcon,
 } from "../icons";
 import {
   Users,
   Dumbbell,
-  FileText,
   CreditCard,
   ShoppingCart,
-  UserPlus,
-  Trophy,
   MessageSquare,
   Bell,
   Settings,
@@ -27,6 +22,8 @@ import {
   BadgeDollarSign,
 } from "lucide-react";
 import { useSidebar } from "../context/SidebarContext";
+import { useAuth } from "../auth/auth.store";
+import { canAccess } from "../auth/permissions";
 import SidebarWidget from "./SidebarWidget";
 
 type NavItem = {
@@ -37,6 +34,11 @@ type NavItem = {
 };
 
 const navItems: NavItem[] = [
+  {
+    icon: <GridIcon />,
+    name: "Overview",
+    path: "/admin-dashboard",
+  },
   {
     icon: <GridIcon />,
     name: "Dashboard",
@@ -53,54 +55,42 @@ const navItems: NavItem[] = [
     path: "/plans",
   },
   {
-    icon: <CalenderIcon />,
-    name: "Classes",
-    path: "/classes",
-  },
-  {
-    icon: <CalenderIcon />,
-    name: "Calendar",
-    path: "/calendar",
-  },
-  {
     icon: <Dumbbell className="h-5 w-5" />,
-    name: "Equipment",
-    path: "/equipment",
+    name: "Fitness",
+    subItems: [
+      { name: "Classes", path: "/classes" },
+      { name: "Calendar", path: "/calendar" },
+      { name: "Challenges", path: "/challenges" },
+    ],
+  },
+  {
+    icon: <ShoppingCart className="h-5 w-5" />,
+    name: "Sales",
+    subItems: [
+      { name: "Point of Sale", path: "/pos" },
+      { name: "Leads", path: "/leads" },
+    ],
   },
   {
     icon: <Box className="h-5 w-5" />,
-    name: "Inventory",
-    path: "/inventory",
+    name: "Assets",
+    subItems: [
+      { name: "Equipment", path: "/equipment" },
+      { name: "Inventory", path: "/inventory" },
+    ],
   },
   {
     icon: <PieChartIcon />,
-    name: "Analytics",
-    path: "/analytics",
-  },
-  {
-    icon: <FileText className="h-5 w-5" />,
-    name: "Reports",
-    path: "/reports",
+    name: "Insights",
+    subItems: [
+      { name: "Analytics", path: "/analytics" },
+      { name: "Reports", path: "/reports" },
+    ],
   },
   {
     icon: <CreditCard className="h-5 w-5" />,
     name: "Billing",
     path: "/billing",
-  },
-  {
-    icon: <ShoppingCart className="h-5 w-5" />,
-    name: "Point of Sale",
-    path: "/pos",
-  },
-  {
-    icon: <UserPlus className="h-5 w-5" />,
-    name: "Leads",
-    path: "/leads",
-  },
-  {
-    icon: <Trophy className="h-5 w-5" />,
-    name: "Challenges",
-    path: "/challenges",
   },
   {
     icon: <MessageSquare className="h-5 w-5" />,
@@ -137,9 +127,34 @@ const othersItems: NavItem[] = [
   },
 ];
 
+/**
+ * Keep only the entries the current role may open (per SCREEN_ACCESS).
+ * Groups keep the sub-entries the role can access and disappear entirely
+ * when none remain.
+ */
+const filterNavForRole = (items: NavItem[], role?: string): NavItem[] =>
+  items
+    .map((item): NavItem | null => {
+      if (item.subItems) {
+        const subItems = item.subItems.filter((sub) =>
+          canAccess(role, sub.path)
+        );
+        return subItems.length > 0 ? { ...item, subItems } : null;
+      }
+      return item.path && canAccess(role, item.path) ? item : null;
+    })
+    .filter((item): item is NavItem => item !== null);
+
 const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const location = useLocation();
+  const { user } = useAuth();
+
+  // Single flat menu (no section headings), filtered for the user's role
+  const mainNav = useMemo(
+    () => filterNavForRole([...navItems, ...othersItems], user?.role),
+    [user?.role]
+  );
 
   const [openSubmenu, setOpenSubmenu] = useState<{
     type: "main" | "others";
@@ -158,27 +173,21 @@ const AppSidebar: React.FC = () => {
 
   useEffect(() => {
     let submenuMatched = false;
-    ["main", "others"].forEach((menuType) => {
-      const items = menuType === "main" ? navItems : othersItems;
-      items.forEach((nav, index) => {
-        if (nav.subItems) {
-          nav.subItems.forEach((subItem) => {
-            if (isActive(subItem.path)) {
-              setOpenSubmenu({
-                type: menuType as "main" | "others",
-                index,
-              });
-              submenuMatched = true;
-            }
-          });
-        }
-      });
+    mainNav.forEach((nav, index) => {
+      if (nav.subItems) {
+        nav.subItems.forEach((subItem) => {
+          if (isActive(subItem.path)) {
+            setOpenSubmenu({ type: "main", index });
+            submenuMatched = true;
+          }
+        });
+      }
     });
 
     if (!submenuMatched) {
       setOpenSubmenu(null);
     }
-  }, [location, isActive]);
+  }, [location, isActive, mainNav]);
 
   useEffect(() => {
     if (openSubmenu !== null) {
@@ -379,38 +388,7 @@ const AppSidebar: React.FC = () => {
       <div className="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
         <nav className="mb-6">
           <div className="flex flex-col gap-4">
-            <div>
-              <h2
-                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
-                  !isExpanded && !isHovered
-                    ? "lg:justify-center"
-                    : "justify-start"
-                }`}
-              >
-                {isExpanded || isHovered || isMobileOpen ? (
-                  "Menu"
-                ) : (
-                  <HorizontaLDots className="size-6" />
-                )}
-              </h2>
-              {renderMenuItems(navItems, "main")}
-            </div>
-            <div className="">
-              <h2
-                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
-                  !isExpanded && !isHovered
-                    ? "lg:justify-center"
-                    : "justify-start"
-                }`}
-              >
-                {isExpanded || isHovered || isMobileOpen ? (
-                  "Others"
-                ) : (
-                  <HorizontaLDots />
-                )}
-              </h2>
-              {renderMenuItems(othersItems, "others")}
-            </div>
+            <div>{renderMenuItems(mainNav, "main")}</div>
           </div>
         </nav>
         {isExpanded || isHovered || isMobileOpen ? <SidebarWidget /> : null}
