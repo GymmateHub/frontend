@@ -19,11 +19,11 @@ export const newsletterKeys = {
 /**
  * Fetch all campaigns
  */
-export const useCampaigns = () => {
+export const useCampaigns = (gymId?: string) => {
   return useQuery({
-    queryKey: newsletterKeys.campaigns(),
+    queryKey: [...newsletterKeys.campaigns(), gymId],
     queryFn: async () => {
-      const response = await newslettersAPI.getCampaigns();
+      const response = await newslettersAPI.getCampaigns(gymId);
       return response.data;
     },
   });
@@ -46,11 +46,11 @@ export const useCampaign = (id: string) => {
 /**
  * Fetch all templates
  */
-export const useNewsletterTemplates = () => {
+export const useNewsletterTemplates = (gymId?: string) => {
   return useQuery({
-    queryKey: newsletterKeys.templates(),
+    queryKey: [...newsletterKeys.templates(), gymId],
     queryFn: async () => {
-      const response = await newslettersAPI.getTemplates();
+      const response = await newslettersAPI.getTemplates(gymId);
       return response.data;
     },
   });

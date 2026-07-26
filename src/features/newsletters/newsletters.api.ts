@@ -71,8 +71,9 @@ export const newslettersAPI = {
     const response = await apiClient.post(NEWSLETTERS.CAMPAIGNS, data);
     return response.data;
   },
-  getCampaigns: async (): Promise<ApiResponse<CampaignResponse[]>> => {
-    const response = await apiClient.get(NEWSLETTERS.CAMPAIGNS);
+  getCampaigns: async (gymId?: string): Promise<ApiResponse<CampaignResponse[]>> => {
+    const url = gymId ? `${NEWSLETTERS.CAMPAIGNS}?gymId=${gymId}` : NEWSLETTERS.CAMPAIGNS;
+    const response = await apiClient.get(url);
     return response.data;
   },
   getCampaign: async (id: string): Promise<ApiResponse<CampaignResponse>> => {
@@ -105,8 +106,9 @@ export const newslettersAPI = {
     const response = await apiClient.post(NEWSLETTERS.TEMPLATES, data);
     return response.data;
   },
-  getTemplates: async (): Promise<ApiResponse<TemplateResponse[]>> => {
-    const response = await apiClient.get(NEWSLETTERS.TEMPLATES);
+  getTemplates: async (gymId?: string): Promise<ApiResponse<TemplateResponse[]>> => {
+    const url = gymId ? `${NEWSLETTERS.TEMPLATES}?gymId=${gymId}` : NEWSLETTERS.TEMPLATES;
+    const response = await apiClient.get(url);
     return response.data;
   },
   getTemplate: async (id: string): Promise<ApiResponse<TemplateResponse>> => {
