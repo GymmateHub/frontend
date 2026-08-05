@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Auth Store
  * Combined authentication utilities and React Context for auth state management
  */
@@ -144,6 +144,28 @@ const getErrorMessage = (error: unknown): string => {
 };
 
 /**
+ * Helper to dynamically detect user country and timezone via IP lookup
+ */
+const detectGeoFromIP = async (): Promise<{ country?: string; timezone?: string }> => {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 3000);
+    const res = await fetch("https://ipapi.co/json/", { signal: controller.signal });
+    clearTimeout(timeoutId);
+    if (res.ok) {
+      const data = await res.json();
+      return {
+        country: data?.country_name,
+        timezone: data?.timezone,
+      };
+    }
+  } catch {
+    // Quiet fallback if network or timeout fails
+  }
+  return {};
+};
+
+/**
  * Registration Functions
  */
 export const registerGymOwner = async (
@@ -151,15 +173,37 @@ export const registerGymOwner = async (
   password: string,
   firstName: string,
   lastName: string,
-  phone?: string
+  phone?: string,
+  organisationName?: string,
+  gymName?: string,
+  timezone?: string,
+  country?: string
 ): Promise<{ userId: string; message: string }> => {
   try {
+    // 1. Fetch IP-based location data
+    const geo = await detectGeoFromIP();
+
+    // 2. Dynamically resolve timezone (explicit -> IP geo -> browser Intl API -> fallback UTC)
+    const resolvedTimezone =
+      timezone ||
+      geo.timezone ||
+      Intl.DateTimeFormat().resolvedOptions().timeZone ||
+      "UTC";
+
+    // 3. Dynamically resolve country (explicit -> IP geo -> fallback United States)
+    const resolvedCountry =
+      country || geo.country || "United States";
+
     const response = await apiClient.post(AUTH.REGISTER_OWNER, {
       email,
       password,
       firstName,
       lastName,
       phone,
+      organisationName: organisationName || `${firstName}'s Organisation`,
+      gymName: gymName || `${firstName}'s Gym`,
+      timezone: resolvedTimezone,
+      country: resolvedCountry,
     });
 
     return {
