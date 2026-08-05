@@ -149,18 +149,20 @@ const getErrorMessage = (error: unknown): string => {
 const detectGeoFromIP = async (): Promise<{ country?: string; timezone?: string }> => {
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 3000);
+    const timeoutId = setTimeout(() => controller.abort(), 2500);
     const res = await fetch("https://ipapi.co/json/", { signal: controller.signal });
     clearTimeout(timeoutId);
     if (res.ok) {
       const data = await res.json();
-      return {
-        country: data?.country_name,
-        timezone: data?.timezone,
-      };
+      if (data && !data.error && data.country_name) {
+        return {
+          country: data.country_name,
+          timezone: data.timezone,
+        };
+      }
     }
   } catch {
-    // Quiet fallback if network or timeout fails
+    // Quiet fallback if network or rate limit occurs
   }
   return {};
 };

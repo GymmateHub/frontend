@@ -22,7 +22,11 @@ export default function SignUpForm() {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const { register, handleSubmit } = useForm<SignUpFormData>();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<SignUpFormData>();
 
   const onSubmit = async (data: SignUpFormData) => {
     if (!isChecked) {
@@ -88,8 +92,13 @@ export default function SignUpForm() {
                   <Input
                     type="text"
                     placeholder="Enter your first name"
-                    {...register("firstName", { required: true })}
+                    {...register("firstName", { required: "First name is required" })}
                   />
+                  {errors.firstName && (
+                    <span className="mt-1 block text-xs text-error-500">
+                      {errors.firstName.message}
+                    </span>
+                  )}
                 </div>
                 <div className="sm:col-span-1">
                   <Label>
@@ -98,8 +107,13 @@ export default function SignUpForm() {
                   <Input
                     type="text"
                     placeholder="Enter your last name"
-                    {...register("lastName", { required: true })}
+                    {...register("lastName", { required: "Last name is required" })}
                   />
+                  {errors.lastName && (
+                    <span className="mt-1 block text-xs text-error-500">
+                      {errors.lastName.message}
+                    </span>
+                  )}
                 </div>
               </div>
               <div>
@@ -109,8 +123,26 @@ export default function SignUpForm() {
                 <Input
                   type="email"
                   placeholder="Enter your email"
-                  {...register("email", { required: true })}
+                  {...register("email", { required: "Email is required" })}
                 />
+                {errors.email && (
+                  <span className="mt-1 block text-xs text-error-500">
+                    {errors.email.message}
+                  </span>
+                )}
+              </div>
+              <div>
+                <Label>Phone Number</Label>
+                <Input
+                  type="tel"
+                  placeholder="e.g. +1234567890"
+                  {...register("phone")}
+                />
+                {errors.phone && (
+                  <span className="mt-1 block text-xs text-error-500">
+                    {errors.phone.message}
+                  </span>
+                )}
               </div>
               <div>
                 <Label>
@@ -120,7 +152,13 @@ export default function SignUpForm() {
                   <Input
                     placeholder="Enter your password"
                     type={showPassword ? "text" : "password"}
-                    {...register("password", { required: true })}
+                    {...register("password", {
+                      required: "Password is required",
+                      minLength: {
+                        value: 12,
+                        message: "Password must be at least 12 characters long",
+                      },
+                    })}
                   />
                   <span
                     onClick={() => setShowPassword(!showPassword)}
@@ -133,6 +171,11 @@ export default function SignUpForm() {
                     )}
                   </span>
                 </div>
+                {errors.password && (
+                  <span className="mt-1 block text-xs text-error-500">
+                    {errors.password.message}
+                  </span>
+                )}
               </div>
               <div className="flex items-center gap-3">
                 <Checkbox
