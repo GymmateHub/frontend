@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { Building2, Plus, MapPin, Users, MoreHorizontal } from "lucide-react";
 import PageMeta from "../../components/common/PageMeta";
 import { useMyGyms } from "../../features/gyms/gyms.hooks";
@@ -56,7 +56,7 @@ export default function GymManagementPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-            {gyms.map((gym: any) => {
+            {gyms.map((gym: { id: string; name: string; status: string; address?: { street?: string; city?: string } }) => {
               const statusColor = statusConfig[gym.status] ?? "bg-gray-100 text-gray-600 dark:bg-white/5 dark:text-gray-400";
               const address = gym.address ? `${gym.address.street ?? ""}, ${gym.address.city ?? ""}`.replace(/^,\s*/, "") : null;
               return (

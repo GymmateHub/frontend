@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Dumbbell, Plus, CheckCircle, AlertTriangle, XCircle, Wrench } from "lucide-react";
 import PageMeta from "../../components/common/PageMeta";
@@ -66,7 +66,7 @@ export default function EquipmentPage() {
     closeModal();
   };
 
-  const filtered = equipment.filter((e: any) =>
+  const filtered = equipment.filter((e: { name: string; brand?: string }) =>
     `${e.name} ${e.brand ?? ""}`.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -126,7 +126,7 @@ export default function EquipmentPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-            {filtered.map((item: any) => {
+            {filtered.map((item: { id: string; name: string; status: string; category?: string; manufacturer?: string; model?: string }) => {
               const status = statusConfig[item.status] ?? { label: item.status ?? "Unknown", color: "bg-gray-100 text-gray-600 dark:bg-white/5 dark:text-gray-400" };
               return (
                 <div key={item.id} className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] p-6 hover:shadow-sm transition-shadow">

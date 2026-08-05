@@ -1,4 +1,4 @@
-﻿import { Calendar, Plus, Users, Clock, BookOpen, TrendingUp } from "lucide-react";
+import { Calendar, Plus, Users, Clock, BookOpen, TrendingUp } from "lucide-react";
 import { useAuth } from "../../auth/auth.store";
 import PageMeta from "../../components/common/PageMeta";
 import { useClasses, useClassStats } from "../../features/classes/classes.hooks";
@@ -78,7 +78,7 @@ export default function ClassesPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-            {classes.map((cls: any) => {
+            {classes.map((cls: { id: string; name: string; category?: { name?: string }; description?: string }) => {
               const catKey = cls.category?.name?.toLowerCase() ?? "default";
               const catColor = categoryColor[catKey] ?? categoryColor.default;
               return (

@@ -1,4 +1,3 @@
-﻿import { useState } from "react";
 import { Users, TrendingUp, DollarSign, BarChart2, Calendar, Activity } from "lucide-react";
 import PageMeta from "../../components/common/PageMeta";
 import { useAllGymsAnalytics } from "../../features/analytics/analytics.hooks";
@@ -24,7 +23,6 @@ function fmt(n: number | undefined, currency = false) {
 
 export default function AnalyticsPage() {
   const { data, isLoading } = useAllGymsAnalytics();
-  const [_gymId] = useState("");
 
   return (
     <>
@@ -77,7 +75,7 @@ export default function AnalyticsPage() {
             <h2 className="text-base font-semibold text-gray-800 dark:text-white/90 mb-4">Top Classes</h2>
             {data?.topClasses && data.topClasses.length > 0 ? (
               <div className="space-y-3">
-                {data.topClasses.map((cls: any, idx: number) => (
+                {data.topClasses.map((cls: { id?: string; name?: string; attendanceCount?: number; count?: number }, idx: number) => (
                   <div key={cls.id ?? idx} className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-800 last:border-0">
                     <div className="flex items-center gap-3">
                       <span className="flex h-7 w-7 items-center justify-center rounded-full bg-brand-100 dark:bg-brand-500/20 text-brand-600 dark:text-brand-400 text-xs font-bold">{idx + 1}</span>
@@ -97,10 +95,10 @@ export default function AnalyticsPage() {
             <h2 className="text-base font-semibold text-gray-800 dark:text-white/90 mb-4">Members by Plan</h2>
             {data?.membersByPlan && Object.keys(data.membersByPlan).length > 0 ? (
               <div className="space-y-3">
-                {Object.entries(data.membersByPlan).map(([plan, count]: [string, any]) => (
+                {Object.entries(data.membersByPlan).map(([plan, count]: [string, unknown]) => (
                   <div key={plan} className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-800 last:border-0">
                     <p className="text-sm font-medium text-gray-800 dark:text-white/90 capitalize">{plan}</p>
-                    <span className="text-sm text-gray-500 dark:text-gray-400">{count} members</span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400">{String(count)} members</span>
                   </div>
                 ))}
               </div>

@@ -1,4 +1,4 @@
-﻿import { Package, Plus, AlertTriangle, XCircle, DollarSign } from "lucide-react";
+import { Package, Plus, AlertTriangle, XCircle, DollarSign } from "lucide-react";
 import { useAuth } from "../../auth/auth.store";
 import PageMeta from "../../components/common/PageMeta";
 import { useInventory } from "../../features/inventory/inventory.hooks";
@@ -17,7 +17,16 @@ function StatCard({ icon, label, value, color }: { icon: React.ReactNode; label:
   );
 }
 
-function stockStatus(item: any): { label: string; color: string } {
+interface InventoryItemItem {
+  id?: string;
+  name?: string;
+  category?: string;
+  currentStock: number;
+  minimumStock?: number;
+  unitCost?: number;
+}
+
+function stockStatus(item: InventoryItemItem): { label: string; color: string } {
   if (item.currentStock === 0) return { label: "Out of Stock", color: "bg-error-100 text-error-700 dark:bg-error-500/15 dark:text-error-400" };
   if (item.currentStock <= (item.minimumStock ?? 0)) return { label: "Low Stock", color: "bg-warning-100 text-warning-700 dark:bg-warning-500/15 dark:text-warning-400" };
   return { label: "In Stock", color: "bg-success-100 text-success-700 dark:bg-success-500/15 dark:text-success-400" };
@@ -28,9 +37,9 @@ export default function InventoryPage() {
   const gymId = user?.gymId ?? "";
   const { data: items = [], isLoading } = useInventory(gymId);
 
-  const lowStock = items.filter((i: any) => i.currentStock > 0 && i.currentStock <= (i.minimumStock ?? 0));
-  const outOfStock = items.filter((i: any) => i.currentStock === 0);
-  const totalValue = items.reduce((sum: number, i: any) => sum + (i.currentStock * (i.unitCost ?? 0)), 0);
+  const lowStock = items.filter((i: InventoryItemItem) => i.currentStock > 0 && i.currentStock <= (i.minimumStock ?? 0));
+  const outOfStock = items.filter((i: InventoryItemItem) => i.currentStock === 0);
+  const totalValue = items.reduce((sum: number, i: InventoryItemItem) => sum + (i.currentStock * (i.unitCost ?? 0)), 0);
 
   return (
     <>
@@ -88,7 +97,7 @@ export default function InventoryPage() {
                     </td>
                   </tr>
                 ) : (
-                  items.map((item: any) => {
+                  items.map((item: InventoryItemItem) => {
                     const status = stockStatus(item);
                     return (
                       <tr key={item.id} className="hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors">

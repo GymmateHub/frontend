@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useNavigate } from "react-router";
 import { Users, Calendar, DollarSign, Activity, TrendingUp, AlertTriangle, UserPlus, Zap, Target, Building2 } from "lucide-react";
 import PageMeta from "../../components/common/PageMeta";
@@ -26,7 +25,6 @@ function StatCard({ title, value, change, icon: Icon, color }: { title: string; 
 export default function DashboardPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [_selectedGymId] = useState("all");
 
   const { data: memberStats, isLoading: statsLoading } = useMemberStats();
   const { data: members = [], isLoading: membersLoading } = useMembers();
