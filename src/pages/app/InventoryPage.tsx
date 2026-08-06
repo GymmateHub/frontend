@@ -2,6 +2,7 @@ import { Package, Plus, AlertTriangle, XCircle, DollarSign } from "lucide-react"
 import { useAuth } from "../../auth/auth.store";
 import PageMeta from "../../components/common/PageMeta";
 import { useInventory } from "../../features/inventory/inventory.hooks";
+import type { InventoryItemResponse } from "../../features/inventory/inventory.api";
 
 function StatCard({ icon, label, value, color }: { icon: React.ReactNode; label: string; value: string | number; color: string }) {
   return (
@@ -17,18 +18,11 @@ function StatCard({ icon, label, value, color }: { icon: React.ReactNode; label:
   );
 }
 
-interface InventoryItemItem {
-  id?: string;
-  name?: string;
-  category?: string;
-  currentStock: number;
-  minimumStock?: number;
-  unitCost?: number;
-}
-
-function stockStatus(item: InventoryItemItem): { label: string; color: string } {
-  if (item.currentStock === 0) return { label: "Out of Stock", color: "bg-error-100 text-error-700 dark:bg-error-500/15 dark:text-error-400" };
-  if (item.currentStock <= (item.minimumStock ?? 0)) return { label: "Low Stock", color: "bg-warning-100 text-warning-700 dark:bg-warning-500/15 dark:text-warning-400" };
+function stockStatus(item: InventoryItemResponse): { label: string; color: string } {
+  const stock = item.quantity ?? 0;
+  const min = item.minQuantity ?? 0;
+  if (stock === 0) return { label: "Out of Stock", color: "bg-error-100 text-error-700 dark:bg-error-500/15 dark:text-error-400" };
+  if (stock <= min) return { label: "Low Stock", color: "bg-warning-100 text-warning-700 dark:bg-warning-500/15 dark:text-warning-400" };
   return { label: "In Stock", color: "bg-success-100 text-success-700 dark:bg-success-500/15 dark:text-success-400" };
 }
 
@@ -37,9 +31,9 @@ export default function InventoryPage() {
   const gymId = user?.gymId ?? "";
   const { data: items = [], isLoading } = useInventory(gymId);
 
-  const lowStock = items.filter((i: InventoryItemItem) => i.currentStock > 0 && i.currentStock <= (i.minimumStock ?? 0));
-  const outOfStock = items.filter((i: InventoryItemItem) => i.currentStock === 0);
-  const totalValue = items.reduce((sum: number, i: InventoryItemItem) => sum + (i.currentStock * (i.unitCost ?? 0)), 0);
+  const lowStock = items.filter((i) => (i.quantity ?? 0) > 0 && (i.quantity ?? 0) <= (i.minQuantity ?? 0));
+  const outOfStock = items.filter((i) => (i.quantity ?? 0) === 0);
+  const totalValue = items.reduce((sum: number, i) => sum + ((i.quantity ?? 0) * (i.costPrice ?? i.unitPrice ?? 0)), 0);
 
   return (
     <>
@@ -97,15 +91,15 @@ export default function InventoryPage() {
                     </td>
                   </tr>
                 ) : (
-                  items.map((item: InventoryItemItem) => {
+                  items.map((item: InventoryItemResponse) => {
                     const status = stockStatus(item);
                     return (
                       <tr key={item.id} className="hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors">
                         <td className="px-6 py-4 text-sm font-medium text-gray-800 dark:text-white/90">{item.name}</td>
-                        <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{item.category ?? "â€”"}</td>
-                        <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{item.currentStock ?? 0}</td>
-                        <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{item.minimumStock ?? "â€”"}</td>
-                        <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{item.unitCost !== undefined ? `$${item.unitCost}` : "â€”"}</td>
+                        <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{item.category ?? "—"}</td>
+                        <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{item.quantity ?? 0}</td>
+                        <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{item.minQuantity ?? "—"}</td>
+                        <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{(item.costPrice ?? item.unitPrice) !== undefined ? `$${item.costPrice ?? item.unitPrice}` : "—"}</td>
                         <td className="px-6 py-4">
                           <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${status.color}`}>{status.label}</span>
                         </td>

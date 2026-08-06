@@ -12,6 +12,18 @@ const categoryColor: Record<string, string> = {
   default: "bg-gray-100 text-gray-700 dark:bg-white/5 dark:text-gray-400",
 };
 
+interface GymClassItem {
+  id: string;
+  name: string;
+  category?: { name?: string };
+  categoryName?: string;
+  description?: string;
+  capacity?: number;
+  defaultCapacity?: number;
+  durationMinutes?: number;
+  defaultDuration?: number;
+}
+
 function StatCard({ icon, label, value, color }: { icon: React.ReactNode; label: string; value: string | number; color: string }) {
   return (
     <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] p-6">
@@ -78,7 +90,7 @@ export default function ClassesPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-            {classes.map((cls: { id: string; name: string; category?: { name?: string }; description?: string }) => {
+            {classes.map((cls: GymClassItem) => {
               const catKey = cls.category?.name?.toLowerCase() ?? "default";
               const catColor = categoryColor[catKey] ?? categoryColor.default;
               return (

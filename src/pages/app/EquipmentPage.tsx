@@ -8,7 +8,7 @@ import Input from "../../components/form/input/InputField";
 import Label from "../../components/form/Label";
 import { useModal } from "../../hooks/useModal";
 import { useEquipmentByOrganisation, useEquipmentStats, useCreateEquipment } from "../../features/equipment/equipment.hooks";
-import { EQUIPMENT_CATEGORIES, type EquipmentCreateRequest } from "../../features/equipment/equipment.api";
+import { EQUIPMENT_CATEGORIES, type EquipmentCreateRequest, type EquipmentResponse } from "../../features/equipment/equipment.api";
 import { useGyms } from "../../features/gyms/gyms.hooks";
 
 const statusConfig: Record<string, { label: string; color: string }> = {
@@ -66,7 +66,7 @@ export default function EquipmentPage() {
     closeModal();
   };
 
-  const filtered = equipment.filter((e: { name: string; brand?: string }) =>
+  const filtered = equipment.filter((e: EquipmentResponse) =>
     `${e.name} ${e.brand ?? ""}`.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -126,7 +126,7 @@ export default function EquipmentPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-            {filtered.map((item: { id: string; name: string; status: string; category?: string; manufacturer?: string; model?: string }) => {
+            {filtered.map((item: EquipmentResponse) => {
               const status = statusConfig[item.status] ?? { label: item.status ?? "Unknown", color: "bg-gray-100 text-gray-600 dark:bg-white/5 dark:text-gray-400" };
               return (
                 <div key={item.id} className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] p-6 hover:shadow-sm transition-shadow">
