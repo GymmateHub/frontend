@@ -13,6 +13,8 @@ interface SignUpFormData {
   email: string;
   password: string;
   phone?: string;
+  organisationName?: string;
+  gymName?: string;
 }
 
 export default function SignUpForm() {
@@ -41,10 +43,17 @@ export default function SignUpForm() {
         data.password,
         data.firstName,
         data.lastName,
-        data.phone
+        data.phone,
+        data.organisationName,
+        data.gymName
       );
       navigate("/verify-email", {
-        state: { userId: result.userId, email: data.email },
+        state: {
+          userId: result.userId,
+          email: data.email,
+          firstName: data.firstName,
+          lastName: data.lastName,
+        },
       });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Registration failed";
@@ -143,6 +152,24 @@ export default function SignUpForm() {
                     {errors.phone.message}
                   </span>
                 )}
+              </div>
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                <div className="sm:col-span-1">
+                  <Label>Organisation Name</Label>
+                  <Input
+                    type="text"
+                    placeholder="e.g. Iron Peak Holdings"
+                    {...register("organisationName")}
+                  />
+                </div>
+                <div className="sm:col-span-1">
+                  <Label>Gym Name</Label>
+                  <Input
+                    type="text"
+                    placeholder="e.g. Iron Peak Fitness"
+                    {...register("gymName")}
+                  />
+                </div>
               </div>
               <div>
                 <Label>

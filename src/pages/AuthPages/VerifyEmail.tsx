@@ -6,7 +6,8 @@ import AuthLayout from "./AuthPageLayout";
 import Label from "../../components/form/Label";
 import Input from "../../components/form/input/InputField";
 import Button from "../../components/ui/button/Button";
-import { verifyOtp, resendOtp } from "../../auth/auth.store";
+import { verifyOtp, resendOtp, authStorage, useAuth } from "../../auth/auth.store";
+import { homeFor } from "../../auth/permissions";
 
 interface VerifyEmailForm {
   otp: string;
@@ -15,13 +16,16 @@ interface VerifyEmailForm {
 interface LocationState {
   userId?: string;
   email?: string;
+  firstName?: string;
+  lastName?: string;
 }
 
 export default function VerifyEmail() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { refreshUserData } = useAuth();
   const state = (location.state as LocationState) ?? {};
-  const { userId = "", email = "" } = state;
+  const { userId = "", email = "", firstName = "", lastName = "" } = state;
 
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -33,8 +37,30 @@ export default function VerifyEmail() {
     try {
       setError(null);
       setIsLoading(true);
-      await verifyOtp(userId, data.otp);
-      navigate("/login", { state: { verified: true } });
+      const { accessToken, refreshToken, role, organisationId } = await verifyOtp(
+        userId,
+        data.otp
+      );
+
+      if (accessToken && refreshToken) {
+        // Log the user straight in instead of forcing a separate /login round trip.
+        authStorage.setToken(accessToken);
+        authStorage.setRefreshToken(refreshToken);
+        authStorage.setUser({
+          userId,
+          email,
+          firstName,
+          lastName,
+          role: role || "",
+          organisationId: organisationId || "",
+          gymId: "",
+        });
+        refreshUserData();
+        navigate(homeFor(role), { replace: true });
+      } else {
+        // Fallback for older backend responses that don't issue tokens on verify.
+        navigate("/login", { state: { verified: true } });
+      }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "OTP verification failed";
       setError(msg);

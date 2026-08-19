@@ -237,12 +237,30 @@ export const registerMember = async (
   }
 };
 
-export const verifyOtp = async (userId: string, otp: string): Promise<void> => {
+// BUG-002: backend now issues tokens on successful verification instead of leaving the
+// user verified-but-signed-out, so this returns them for the caller to log the user in
+// immediately instead of forcing a separate /login round trip.
+export const verifyOtp = async (
+  userId: string,
+  otp: string
+): Promise<{
+  accessToken?: string;
+  refreshToken?: string;
+  role?: string;
+  organisationId?: string;
+}> => {
   try {
-    await apiClient.post(AUTH.VERIFY_OTP, {
+    const response = await apiClient.post(AUTH.VERIFY_OTP, {
       userId,
       otp,
     });
+    const data = response.data?.data ?? {};
+    return {
+      accessToken: data.accessToken,
+      refreshToken: data.refreshToken,
+      role: data.role,
+      organisationId: data.organisationId,
+    };
   } catch (error) {
     throw new Error(getErrorMessage(error) || "OTP verification failed");
   }

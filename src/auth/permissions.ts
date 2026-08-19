@@ -12,6 +12,7 @@
 
 export type AppRole =
   | "SUPER_ADMIN"
+  | "GYM_OWNER"
   | "OWNER"
   | "MANAGER"
   | "TRAINER"
@@ -19,26 +20,26 @@ export type AppRole =
   | "MEMBER";
 
 /** Gym-operations staff (everyone who runs a gym day to day) */
-const GYM_STAFF: AppRole[] = ["OWNER", "MANAGER", "TRAINER", "STAFF"];
+const GYM_STAFF: AppRole[] = ["GYM_OWNER", "OWNER", "MANAGER", "TRAINER", "STAFF"];
 
 export const SCREEN_ACCESS: Record<string, AppRole[]> = {
   // Gym operations
   "/dashboard": GYM_STAFF,
   "/members": GYM_STAFF,
-  "/plans": ["OWNER", "MANAGER"],
+  "/plans": ["GYM_OWNER", "OWNER", "MANAGER"],
   "/classes": GYM_STAFF,
   "/calendar": GYM_STAFF,
-  "/challenges": ["OWNER", "MANAGER", "TRAINER"],
-  "/equipment": ["OWNER", "MANAGER", "STAFF"],
-  "/inventory": ["OWNER", "MANAGER", "STAFF"],
-  "/pos": ["OWNER", "MANAGER", "STAFF"],
-  "/leads": ["OWNER", "MANAGER", "STAFF"],
+  "/challenges": ["GYM_OWNER", "OWNER", "MANAGER", "TRAINER"],
+  "/equipment": ["GYM_OWNER", "OWNER", "MANAGER", "STAFF"],
+  "/inventory": ["GYM_OWNER", "OWNER", "MANAGER", "STAFF"],
+  "/pos": ["GYM_OWNER", "OWNER", "MANAGER", "STAFF"],
+  "/leads": ["GYM_OWNER", "OWNER", "MANAGER", "STAFF"],
 
   // Management & insights
-  "/analytics": ["OWNER", "MANAGER"],
-  "/reports": ["OWNER", "MANAGER"],
-  "/billing": ["OWNER"],
-  "/gym-management": ["OWNER", "MANAGER"],
+  "/analytics": ["GYM_OWNER", "OWNER", "MANAGER"],
+  "/reports": ["GYM_OWNER", "OWNER", "MANAGER"],
+  "/billing": ["GYM_OWNER", "OWNER"],
+  "/gym-management": ["GYM_OWNER", "OWNER", "MANAGER"],
 
   // Platform administration (GymMateHub itself)
   "/admin-dashboard": ["SUPER_ADMIN"],
@@ -48,7 +49,7 @@ export const SCREEN_ACCESS: Record<string, AppRole[]> = {
   "/messages": ["SUPER_ADMIN", ...GYM_STAFF],
   "/notifications": ["SUPER_ADMIN", ...GYM_STAFF],
   "/profile": ["SUPER_ADMIN", ...GYM_STAFF],
-  "/settings": ["SUPER_ADMIN", "OWNER", "MANAGER"],
+  "/settings": ["SUPER_ADMIN", "GYM_OWNER", "OWNER", "MANAGER"],
 
   // Members are mobile-first; the web only shows them a notice page
   "/member-app": ["MEMBER"],
