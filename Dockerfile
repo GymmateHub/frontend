@@ -13,6 +13,13 @@ RUN npm ci
 # Copy the rest of the application code
 COPY . .
 
+# Build arguments and environment variables
+ARG VITE_API_URL=https://api.gymmatehub.com/api
+ENV VITE_API_URL=$VITE_API_URL
+
+# Ensure .env.production is used for Docker build
+RUN if [ -f .env.production ]; then cp .env.production .env; fi
+
 # Build the application
 RUN npm run build
 

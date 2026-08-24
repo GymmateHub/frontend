@@ -12,7 +12,7 @@ import axios, {
 
 // API Configuration - Use VITE_API_URL for consistency across the app
 const API_BASE_URL =
-  import.meta.env.VITE_API_URL || "http://localhost:8080/api";
+  import.meta.env.VITE_API_URL || "https://api.gymmatehub.com/api";
 const API_TIMEOUT = 30000; // 30 seconds
 
 // Token storage keys
