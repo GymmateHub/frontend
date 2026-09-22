@@ -1,8 +1,15 @@
+import { useState } from "react";
 import { useNavigate } from "react-router";
-import { Users, Calendar, DollarSign, Activity, TrendingUp, AlertTriangle, UserPlus, Zap, Target, Building2 } from "lucide-react";
+import { 
+  Users, Calendar, DollarSign, Activity, TrendingUp, AlertTriangle, 
+  UserPlus, Zap, Target, Building2, Package, ShoppingCart,
+  CreditCard, X
+} from "lucide-react";
 import PageMeta from "../../components/common/PageMeta";
 import { useMembers, useMemberStats } from "../../features/members/members.hooks";
 import { useAuth } from "../../auth/auth.store";
+import { useCurrency } from "../../utils/currency";
+import { Modal } from "../../components/ui/modal";
 
 function StatCard({ title, value, change, icon: Icon, color }: { title: string; value: string; change: string; icon: typeof Users; color: string }) {
   return (
@@ -25,6 +32,8 @@ function StatCard({ title, value, change, icon: Icon, color }: { title: string; 
 export default function DashboardPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { format } = useCurrency();
+  const [isQuickActionsOpen, setIsQuickActionsOpen] = useState(false);
 
   const { data: memberStats, isLoading: statsLoading } = useMemberStats();
   const { data: members = [], isLoading: membersLoading } = useMembers();
@@ -33,9 +42,9 @@ export default function DashboardPage() {
 
   const stats = [
     { title: "Total Members", value: statsLoading ? "..." : (memberStats?.totalMembers?.toLocaleString() ?? "0"), change: memberStats?.totalMembersChange ?? "+0%", icon: Users, color: "bg-brand-500" },
-    { title: "Monthly Revenue", value: statsLoading ? "..." : `$${memberStats?.monthlyRevenue?.toLocaleString() ?? "0"}`, change: memberStats?.revenueChange ?? "+0%", icon: DollarSign, color: "bg-success-500" },
-    { title: "Active Members", value: statsLoading ? "..." : (memberStats?.activeMembers?.toLocaleString() ?? "0"), change: memberStats?.activeMembersChange ?? "0%", icon: Activity, color: "bg-warning-500" },
-    { title: "New This Month", value: statsLoading ? "..." : (memberStats?.newThisMonth?.toString() ?? "0"), change: memberStats?.newMembersChange ?? "+0", icon: UserPlus, color: "bg-blue-500" },
+    { title: "Monthly Revenue", value: statsLoading ? "..." : format(memberStats?.monthlyRevenue ?? 0), change: memberStats?.revenueChange ?? "+0%", icon: DollarSign, color: "bg-success-500" },
+    { title: "Active Today", value: statsLoading ? "..." : (memberStats?.activeMembers?.toLocaleString() ?? "0"), change: memberStats?.activeMembersChange ?? "+0%", icon: Activity, color: "bg-purple-500" },
+    { title: "Classes This Week", value: "0", change: "+0%", icon: Calendar, color: "bg-orange-500" },
   ];
 
   const statusColor: Record<string, string> = {
@@ -44,6 +53,15 @@ export default function DashboardPage() {
     cancelled: "bg-error-100 text-error-700 dark:bg-error-500/15 dark:text-error-400",
     inactive: "bg-gray-100 text-gray-600 dark:bg-white/5 dark:text-gray-400",
   };
+
+  const quickActionItems = [
+    { title: "Add New Member", description: "Register a new gym member", icon: UserPlus, color: "bg-brand-50 text-brand-600 dark:bg-brand-500/20 dark:text-brand-400", path: "/members" },
+    { title: "Schedule a Class", description: "Create or book a class session", icon: Calendar, color: "bg-blue-50 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400", path: "/classes" },
+    { title: "Record Point of Sale", description: "Ring up retail or drink purchases", icon: ShoppingCart, color: "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400", path: "/pos" },
+    { title: "Add Retail Inventory", description: "Update retail stock and products", icon: Package, color: "bg-purple-50 text-purple-600 dark:bg-purple-500/20 dark:text-purple-400", path: "/inventory" },
+    { title: "Add Gym Equipment", description: "Register equipment for tracking", icon: Building2, color: "bg-orange-50 text-orange-600 dark:bg-orange-500/20 dark:text-orange-400", path: "/equipment" },
+    { title: "Add Membership Plan", description: "Create custom pricing tiers", icon: CreditCard, color: "bg-indigo-50 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400", path: "/membership-plans" },
+  ];
 
   return (
     <>
@@ -55,7 +73,7 @@ export default function DashboardPage() {
           <div>
             <h1 className="text-2xl font-bold text-gray-800 dark:text-white/90">Dashboard</h1>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              Welcome back, {user?.firstName}! Here&apos;s what&apos;s happening today.
+              Welcome back, {user?.firstName || "Admin"}! Here&apos;s what&apos;s happening today.
             </p>
           </div>
           <div className="flex gap-3">
@@ -67,8 +85,8 @@ export default function DashboardPage() {
               Add Member
             </button>
             <button
-              onClick={() => navigate("/classes")}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium transition-colors"
+              onClick={() => setIsQuickActionsOpen(true)}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium transition-colors shadow-sm"
             >
               <Zap className="h-4 w-4" />
               Quick Actions
@@ -112,7 +130,7 @@ export default function DashboardPage() {
               <div className="flex flex-col items-center justify-center py-10 text-center">
                 <Users className="h-10 w-10 text-gray-300 dark:text-gray-600 mb-3" />
                 <p className="text-sm text-gray-500 dark:text-gray-400">No members yet</p>
-                <button onClick={() => navigate("/members")} className="mt-3 text-sm text-brand-500 hover:text-brand-600">Add your first member</button>
+                <button onClick={() => navigate("/members")} className="mt-3 text-sm text-brand-500 hover:text-brand-600 font-medium">Add your first member</button>
               </div>
             ) : (
               <div className="space-y-4">
@@ -148,6 +166,7 @@ export default function DashboardPage() {
                 {[
                   { label: "Manage Classes", icon: Calendar, path: "/classes" },
                   { label: "Equipment", icon: Building2, path: "/equipment" },
+                  { label: "Point of Sale", icon: ShoppingCart, path: "/pos" },
                   { label: "Analytics", icon: TrendingUp, path: "/analytics" },
                   { label: "Notifications", icon: AlertTriangle, path: "/notifications" },
                 ].map((item) => (
@@ -169,7 +188,7 @@ export default function DashboardPage() {
               </div>
               <div className="flex flex-col items-center justify-center py-6 text-center">
                 <AlertTriangle className="h-8 w-8 text-gray-300 dark:text-gray-600 mb-2" />
-                <p className="text-sm text-gray-500 dark:text-gray-400">No alerts at this time</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">No active alerts</p>
               </div>
             </div>
           </div>
@@ -191,6 +210,54 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* Quick Actions Modal */}
+      <Modal isOpen={isQuickActionsOpen} onClose={() => setIsQuickActionsOpen(false)} className="max-w-xl w-full p-6">
+        <div className="flex flex-col">
+          <div className="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-gray-800">
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 rounded-xl bg-brand-50 text-brand-600 dark:bg-brand-500/20 dark:text-brand-400">
+                <Zap className="h-5 w-5" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">Quick Actions</h3>
+                <p className="text-xs text-gray-400">Fast shortcuts to common operational tasks</p>
+              </div>
+            </div>
+            <button onClick={() => setIsQuickActionsOpen(false)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 py-4">
+            {quickActionItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <button
+                  key={item.title}
+                  onClick={() => {
+                    setIsQuickActionsOpen(false);
+                    navigate(item.path);
+                  }}
+                  className="flex items-start gap-3 p-3.5 rounded-xl border border-gray-200 dark:border-gray-800 hover:border-brand-500/30 hover:bg-gray-50 dark:hover:bg-white/[0.02] text-left transition-all group"
+                >
+                  <div className={`p-2.5 rounded-lg shrink-0 ${item.color}`}>
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-800 dark:text-white/90 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
+                      {item.title}
+                    </h4>
+                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+                      {item.description}
+                    </p>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </Modal>
     </>
   );
 }
