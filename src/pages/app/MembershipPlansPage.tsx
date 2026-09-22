@@ -1,9 +1,13 @@
+import { getErrorMessage } from "../../api/axios";
 import { useState } from "react";
-import { CreditCard, Plus, Star, Trash2, Loader2, X, CheckCircle } from "lucide-react";
+import { CreditCard, Plus, Star, Trash2, Loader2, X, CheckCircle, AlertCircle } from "lucide-react";
 import PageMeta from "../../components/common/PageMeta";
 import { Modal } from "../../components/ui/modal";
 import { useModal } from "../../hooks/useModal";
 import { useAuth } from "../../auth/auth.store";
+import { useMyGyms } from "../../features/gyms/gyms.hooks";
+import type { GymResponse } from "../../features/gyms/gyms.api";
+import { useCurrency } from "../../utils/currency";
 import {
   usePlans,
   useCreatePlan,
@@ -29,22 +33,41 @@ const emptyForm = {
 
 export default function MembershipPlansPage() {
   const { user } = useAuth();
-  const gymId = user?.gymId ?? "";
+  const { data: gyms = [] } = useMyGyms();
+  const activeGymId = user?.gymId || gyms[0]?.id || "";
+  const [selectedGymId, setSelectedGymId] = useState<string>(activeGymId);
+  const effectiveGymId = selectedGymId || activeGymId;
+
+  const { symbol } = useCurrency();
   const { isOpen, openModal, closeModal } = useModal();
 
-  const { data: plans = [], isLoading } = usePlans(gymId);
+  const { data: plans = [], isLoading } = usePlans(effectiveGymId);
   const createPlan = useCreatePlan();
   const setFeatured = useSetPlanFeatured();
   const deactivatePlan = useDeactivatePlan();
 
   const [form, setForm] = useState(emptyForm);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const handleCreate = () => {
+  const handleCreate = async () => {
+    setErrorMsg(null);
     const price = parseFloat(form.price);
-    if (!form.name.trim() || isNaN(price) || price < 0 || !gymId) return;
-    createPlan.mutate(
-      {
-        gymId,
+    if (!form.name.trim()) {
+      setErrorMsg("Plan name is required.");
+      return;
+    }
+    if (isNaN(price) || price < 0) {
+      setErrorMsg("Please enter a valid price (0 or greater).");
+      return;
+    }
+    if (!effectiveGymId) {
+      setErrorMsg("No active gym location selected. Please ensure you have a gym created.");
+      return;
+    }
+
+    try {
+      await createPlan.mutateAsync({
+        gymId: effectiveGymId,
         data: {
           name: form.name.trim(),
           description: form.description.trim() || undefined,
@@ -55,70 +78,92 @@ export default function MembershipPlansPage() {
           guestPasses: form.guestPasses ? parseInt(form.guestPasses) : undefined,
           trainerSessions: form.trainerSessions ? parseInt(form.trainerSessions) : undefined,
         },
-      },
-      {
-        onSuccess: () => {
-          setForm(emptyForm);
-          closeModal();
-        },
-      }
-    );
+      });
+      setForm(emptyForm);
+      closeModal();
+    } catch (err) {
+      setErrorMsg(getErrorMessage(err) || "Failed to create plan");
+    }
   };
-
-  const activePlans = plans.filter((p) => p.active);
 
   return (
     <>
-      <PageMeta title="Membership Plans | GymMate" description="Manage the membership plans your gym offers" />
+      <PageMeta title="Membership Plans | GymMate" description="Manage gym membership tiers and pricing" />
 
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-gray-800 dark:text-white/90">Membership Plans</h1>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              Plans members can subscribe to — in the gym and from the mobile app
+              Create and manage subscription packages for your members
             </p>
           </div>
-          <button
-            onClick={openModal}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium transition-colors"
-          >
-            <Plus className="h-4 w-4" />
-            New Plan
-          </button>
+          <div className="flex items-center gap-3">
+            {gyms.length > 1 && (
+              <select
+                value={effectiveGymId}
+                onChange={(e) => setSelectedGymId(e.target.value)}
+                className="h-10 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 text-sm text-gray-800 dark:text-white focus:outline-none"
+              >
+                {(gyms as GymResponse[]).map((g: GymResponse) => (
+                  <option key={g.id} value={g.id}>{g.name}</option>
+                ))}
+              </select>
+            )}
+            <button
+              onClick={() => {
+                setErrorMsg(null);
+                setForm(emptyForm);
+                openModal();
+              }}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium transition-colors shadow-sm"
+            >
+              <Plus className="h-4 w-4" />
+              Create Plan
+            </button>
+          </div>
         </div>
 
-        {/* Plans grid */}
+        {/* Plans Grid */}
         {isLoading ? (
-          <div className="flex items-center justify-center py-20 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03]">
-            <Loader2 className="h-7 w-7 text-brand-500 animate-spin" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] p-6 animate-pulse space-y-4">
+                <div className="h-5 bg-gray-100 dark:bg-gray-800 rounded w-1/2" />
+                <div className="h-8 bg-gray-100 dark:bg-gray-800 rounded w-1/3" />
+                <div className="space-y-2">
+                  <div className="h-4 bg-gray-100 dark:bg-gray-800 rounded" />
+                  <div className="h-4 bg-gray-100 dark:bg-gray-800 rounded w-3/4" />
+                </div>
+              </div>
+            ))}
           </div>
-        ) : activePlans.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03]">
-            <CreditCard className="h-12 w-12 text-gray-300 dark:text-gray-600 mb-4" />
-            <p className="text-base font-medium text-gray-600 dark:text-gray-300">No plans yet</p>
-            <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
-              Create your first membership plan so members can subscribe
-            </p>
+        ) : plans.length === 0 ? (
+          <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] p-16 text-center">
+            <CreditCard className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+            <p className="text-base font-medium text-gray-600 dark:text-gray-300">No membership plans yet</p>
+            <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">Create your first plan to start signing up members</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-            {activePlans.map((plan) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+            {plans.map((plan) => (
               <div
                 key={plan.id}
-                className={`rounded-2xl border bg-white dark:bg-white/[0.03] p-6 flex flex-col gap-4 ${
+                className={`rounded-2xl border bg-white dark:bg-white/[0.03] p-6 flex flex-col gap-4 relative transition-shadow hover:shadow-sm ${
                   plan.featured
-                    ? "border-brand-400 dark:border-brand-600"
+                    ? "border-brand-500 ring-1 ring-brand-500/20"
                     : "border-gray-200 dark:border-gray-800"
                 }`}
               >
                 <div className="flex items-start justify-between">
                   <div>
-                    <h3 className="text-base font-semibold text-gray-800 dark:text-white/90">{plan.name}</h3>
-                    <p className="text-2xl font-bold text-brand-600 dark:text-brand-400 mt-1">
-                      ${plan.price.toFixed(2)}
-                      <span className="text-sm font-normal text-gray-500 dark:text-gray-400">
+                    <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">{plan.name}</h3>
+                    <p className="mt-1 flex items-baseline gap-1">
+                      <span className="text-2xl font-bold text-gray-800 dark:text-white/90">
+                        {symbol}{plan.price?.toLocaleString()}
+                      </span>
+                      <span className="text-xs text-gray-400 capitalize">
                         /{plan.billingCycle}
                       </span>
                     </p>
@@ -198,6 +243,13 @@ export default function MembershipPlansPage() {
             </button>
           </div>
 
+          {errorMsg && (
+            <div className="mt-4 flex items-center gap-2 p-3 rounded-lg bg-error-50 dark:bg-error-500/10 text-error-600 dark:text-error-400 text-sm">
+              <AlertCircle className="h-4 w-4 shrink-0" />
+              <span>{errorMsg}</span>
+            </div>
+          )}
+
           <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div className="sm:col-span-2">
               <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Plan Name *</label>
@@ -206,11 +258,11 @@ export default function MembershipPlansPage() {
             </div>
             <div className="sm:col-span-2">
               <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Description</label>
-              <input type="text" value={form.description}
+              <input type="text" value={form.description} placeholder="Plan benefits and features"
                 onChange={(e) => setForm({ ...form, description: e.target.value })} className={inputClass} />
             </div>
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Price *</label>
+              <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Price ({symbol}) *</label>
               <input type="number" min="0" step="0.01" value={form.price} placeholder="49.99"
                 onChange={(e) => setForm({ ...form, price: e.target.value })} className={inputClass} />
             </div>
@@ -257,7 +309,7 @@ export default function MembershipPlansPage() {
               onClick={handleCreate}
               disabled={createPlan.isPending || !form.name.trim() || !form.price}
               type="button"
-              className="flex w-full items-center justify-center gap-2 rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed sm:w-auto"
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed sm:w-auto shadow-sm"
             >
               {createPlan.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
               Create Plan

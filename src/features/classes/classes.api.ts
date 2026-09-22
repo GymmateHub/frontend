@@ -65,11 +65,14 @@ export interface ClassCategoryResponse {
 }
 
 export interface ClassCreateRequest {
+  gymId?: string;
   name: string;
   description?: string;
-  categoryId: string;
-  defaultDuration: number;
-  defaultCapacity: number;
+  categoryId?: string;
+  defaultDuration?: number;
+  defaultCapacity?: number;
+  durationMinutes?: number;
+  capacity?: number;
   difficultyLevel?: string;
   caloriesBurnedEstimate?: number;
   equipmentNeeded?: string[];

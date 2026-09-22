@@ -197,6 +197,8 @@ export const useUpdateGymBusinessSettings = () => {
       return response.data;
     },
     onSuccess: (updated) => {
+      // Pages read gyms from the list query, so it must be refreshed as well as the detail.
+      queryClient.invalidateQueries({ queryKey: gymKeys.lists() });
       queryClient.invalidateQueries({ queryKey: gymKeys.detail(updated.id) });
       toast({
         title: "Business settings updated",

@@ -1,3 +1,4 @@
+import { useActiveGym } from "../../features/gyms/useActiveGym";
 import { useState } from "react";
 import { Users, Search, Plus, MoreHorizontal, UserCheck, UserX, XCircle } from "lucide-react";
 import PageMeta from "../../components/common/PageMeta";
@@ -14,12 +15,21 @@ const statusColor: Record<string, string> = {
 
 function AddMemberModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const createMember = useCreateMember();
+  const { gymId } = useActiveGym();
   const [form, setForm] = useState<MemberCreateRequest>({ email: "", firstName: "", lastName: "", phone: "" });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await createMember.mutateAsync(form);
+      await createMember.mutateAsync({
+        ...form,
+        email: form.email.trim(),
+        firstName: form.firstName.trim(),
+        lastName: form.lastName.trim(),
+        phone: form.phone?.trim() || undefined,
+        // Members are gym-scoped; without this the API rejects (or used to 500) the request.
+        gymId: gymId || undefined,
+      });
       onClose();
       setForm({ email: "", firstName: "", lastName: "", phone: "" });
     } catch {

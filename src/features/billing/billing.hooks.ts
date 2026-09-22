@@ -119,8 +119,8 @@ export const useCancelSubscription = () => {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async (reason?: string) => {
-      const response = await billingAPI.cancel(reason);
+    mutationFn: async (immediate: boolean = false) => {
+      const response = await billingAPI.cancel(immediate);
       return response.data;
     },
     onSuccess: () => {
@@ -156,6 +156,33 @@ export const useRemovePaymentMethod = () => {
     onError: (error: Error) => {
       toast({
         title: "Error removing payment method",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+};
+
+/**
+ * Attach a Stripe payment method (created client-side with Stripe.js) to the subscription
+ */
+export const useAttachPaymentMethod = () => {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async (stripePaymentMethodId: string) => {
+      const response = await billingAPI.attachPaymentMethod(stripePaymentMethodId);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: billingKeys.paymentMethods() });
+      queryClient.invalidateQueries({ queryKey: billingKeys.subscription() });
+      toast({ title: "Card added" });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Couldn't add card",
         description: error.message,
         variant: "destructive",
       });
