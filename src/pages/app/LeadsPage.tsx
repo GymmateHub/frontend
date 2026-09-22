@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { UserPlus, Plus, Users, Mail, Phone, MoreHorizontal, Loader2, X } from "lucide-react";
-import { useAuth } from "../../auth/auth.store";
+import { useActiveGym } from "../../features/gyms/useActiveGym";
 import PageMeta from "../../components/common/PageMeta";
 import { Modal } from "../../components/ui/modal";
 import { useModal } from "../../hooks/useModal";
@@ -45,8 +45,7 @@ function StatCard({ icon, label, value, color }: { icon: React.ReactNode; label:
 const emptyForm = { firstName: "", lastName: "", email: "", phone: "", source: "", notes: "" };
 
 export default function LeadsPage() {
-  const { user } = useAuth();
-  const gymId = user?.gymId ?? "";
+  const { gymId } = useActiveGym();
   const [search, setSearch] = useState("");
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const { data: leads = [], isLoading } = useLeads(gymId);
@@ -84,6 +83,7 @@ export default function LeadsPage() {
   const handleSubmit = () => {
     if (!form.firstName.trim() || !form.lastName.trim()) return;
     const payload = {
+      gymId: gymId || undefined,
       firstName: form.firstName.trim(),
       lastName: form.lastName.trim(),
       email: form.email.trim() || undefined,

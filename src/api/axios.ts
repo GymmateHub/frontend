@@ -160,9 +160,17 @@ apiClient.interceptors.response.use(
       _retry?: boolean;
     };
 
-    // Handle 401 Unauthorized - Token refresh
+    // Handle 401 Unauthorized or unauthenticated token expiration - Token refresh
+    const isUnauthenticated =
+      error.response?.status === 401 ||
+      (error.response?.status === 403 &&
+        (error.response?.data?.message?.toLowerCase().includes("unauthorized") ||
+         error.response?.data?.message?.toLowerCase().includes("jwt") ||
+         error.response?.data?.message?.toLowerCase().includes("token") ||
+         error.response?.data?.message?.toLowerCase().includes("expired")));
+
     if (
-      error.response?.status === 401 &&
+      isUnauthenticated &&
       !originalRequest._retry &&
       !isAuth401Exempt(originalRequest.url)
     ) {
@@ -235,6 +243,13 @@ apiClient.interceptors.response.use(
     // Handle 500 Server Error
     if (error.response?.status === 500) {
       console.error("Server error:", error.response.data.message);
+    }
+
+    // Surface the API's own message ("Gym ID is required…") instead of axios'
+    // generic "Request failed with status code 400" in toasts and forms.
+    const serverMessage = error.response?.data?.message;
+    if (typeof serverMessage === "string" && serverMessage.trim()) {
+      error.message = serverMessage;
     }
 
     return Promise.reject(error);

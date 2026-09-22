@@ -1,3 +1,4 @@
+import { useActiveGym } from "../../features/gyms/useActiveGym";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Dumbbell, Plus, CheckCircle, AlertTriangle, XCircle, Wrench } from "lucide-react";
@@ -42,6 +43,7 @@ export default function EquipmentPage() {
   const [search, setSearch] = useState("");
   const { isOpen, openModal, closeModal } = useModal();
   const { data: gyms = [] } = useGyms();
+  const { gymId: activeGymId } = useActiveGym();
   const createEquipment = useCreateEquipment();
 
   const {
@@ -142,7 +144,7 @@ export default function EquipmentPage() {
                   )}
                   <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
                     <Wrench className="h-3.5 w-3.5" />
-                    Last maintenance: {item.lastMaintenanceDate ? new Date(item.lastMaintenanceDate).toLocaleDateString() : "â€”"}
+                    Last maintenance: {item.lastMaintenanceDate ? new Date(item.lastMaintenanceDate).toLocaleDateString() : "—"}
                   </div>
                 </div>
               );
@@ -193,13 +195,18 @@ export default function EquipmentPage() {
               </div>
 
               <div className="col-span-2">
-                <Label>
+                <Label htmlFor="equipment-gym">
                   Gym <span className="text-error-500">*</span>
                 </Label>
                 <select
+                  id="equipment-gym"
                   className="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:border-brand-300 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
+                  defaultValue={activeGymId}
                   {...register("gymId", { required: true })}
                 >
+                  <option value="" disabled>
+                    {gyms.length === 0 ? "No gyms available" : "Select a gym"}
+                  </option>
                   {gyms.map((g: { id: string; name: string }) => (
                     <option key={g.id} value={g.id}>
                       {g.name}

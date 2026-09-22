@@ -11,7 +11,7 @@ import React, {
   ReactNode,
 } from "react";
 import { useNavigate } from "react-router";
-import apiClient from "@/api/axios";
+import apiClient, { tokenStorage } from "@/api/axios";
 import { AUTH } from "@/api/endpoints";
 import { canAccess, homeFor } from "./permissions";
 import type {
@@ -66,6 +66,8 @@ export const authStorage = {
     authStorage.removeToken();
     authStorage.removeRefreshToken();
     authStorage.removeUser();
+    // Otherwise the next account to sign in would send this account's X-Gym-Id header.
+    tokenStorage.removeCurrentGym();
   },
 
   // clear user
@@ -116,6 +118,17 @@ export const authAPI = {
     gymId: string
   ): Promise<{ success: boolean; message: string; data: GymSwitchResponse }> => {
     const response = await apiClient.post(AUTH.SWITCH_GYM(gymId));
+    return response.data;
+  },
+
+  changePassword: async (
+    currentPassword: string,
+    newPassword: string
+  ): Promise<{ success: boolean; message: string; data: void }> => {
+    const response = await apiClient.post(AUTH.CHANGE_PASSWORD, {
+      currentPassword,
+      newPassword,
+    });
     return response.data;
   },
 
@@ -455,6 +468,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         // Update tokens
         authStorage.setToken(accessToken);
         authStorage.setRefreshToken(refreshToken);
+
+        tokenStorage.setCurrentGym(newGymId);
 
         // Update user with new gym context
         const currentUser = authStorage.getUser();
