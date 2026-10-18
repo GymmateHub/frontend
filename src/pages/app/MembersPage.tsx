@@ -1,3 +1,5 @@
+import { useAuth } from "../../auth/auth.store";
+import { hasPermission, PERMISSIONS } from "../../auth/permissions";
 import { useActiveGym } from "../../features/gyms/useActiveGym";
 import { useState } from "react";
 import { Users, Search, Plus, MoreHorizontal, UserCheck, UserX, XCircle } from "lucide-react";
@@ -90,6 +92,9 @@ export default function MembersPage() {
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
 
   const { data: members = [], isLoading } = useMembers();
+  const { user } = useAuth();
+  // Trainers see members but cannot add or change them.
+  const canManage = hasPermission(user, PERMISSIONS.MEMBERS_MANAGE);
   const activate = useActivateMember();
   const suspend = useSuspendMember();
   const cancel = useCancelMember();
@@ -113,12 +118,14 @@ export default function MembersPage() {
             <h1 className="text-2xl font-bold text-gray-800 dark:text-white/90">Members</h1>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{members.length} total members</p>
           </div>
-          <button onClick={() => setIsAddOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium transition-colors"
-          >
-            <Plus className="h-4 w-4" />
-            Add Member
-          </button>
+          {canManage && (
+            <button onClick={() => setIsAddOpen(true)}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium transition-colors"
+            >
+              <Plus className="h-4 w-4" />
+              Add Member
+            </button>
+          )}
         </div>
 
         {/* Search */}
@@ -191,11 +198,12 @@ export default function MembersPage() {
                       </td>
                       <td className="px-6 py-4">
                         <div className="relative">
+{canManage && (
                           <button onClick={() => setActiveMenu(activeMenu === member.id ? null : member.id)}
                             className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 text-gray-500 dark:text-gray-400 transition-colors"
                           >
                             <MoreHorizontal className="h-4 w-4" />
-                          </button>
+                          </button>)}
                           {activeMenu === member.id && (
                             <div className="absolute right-0 top-8 z-10 w-44 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg py-1">
                               <button onClick={() => handleActivate(member.id)} className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5">

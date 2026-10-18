@@ -92,6 +92,16 @@ const apiClient: AxiosInstance = axios.create({
   },
 });
 
+/** The organisation a platform admin is acting inside, from the stored user. */
+const currentActingOrgId = (): string | null => {
+  try {
+    const raw = localStorage.getItem("gymmate_user");
+    return raw ? JSON.parse(raw)?.actingOrg?.id ?? null : null;
+  } catch {
+    return null;
+  }
+};
+
 /**
  * Request interceptor - Add auth token and gym context
  */
@@ -107,6 +117,12 @@ apiClient.interceptors.request.use(
     const gymId = tokenStorage.getCurrentGym();
     if (gymId) {
       config.headers["X-Gym-Id"] = gymId;
+    }
+
+    // Platform admin acting inside an organisation (audited by the backend)
+    const actingOrgId = currentActingOrgId();
+    if (actingOrgId) {
+      config.headers["X-Organisation-Id"] = actingOrgId;
     }
 
     return config;

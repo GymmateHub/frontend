@@ -13,6 +13,7 @@ vi.mock("../../features/members/members.hooks", () => ({
   useCreateMember: () => ({ mutateAsync: h.create, isPending: false }),
 }));
 vi.mock("../../features/gyms/useActiveGym", () => ({ useActiveGym: () => ({ gymId: h.gymId }) }));
+vi.mock("../../auth/auth.store", () => ({ useAuth: () => ({ user: { permissions: ["members:view", "members:manage"] } }) }));
 
 beforeEach(() => {
   vi.clearAllMocks();

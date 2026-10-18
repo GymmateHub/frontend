@@ -9,6 +9,7 @@ import { Modal } from "../components/ui/modal";
 import { useModal } from "../hooks/useModal";
 import PageMeta from "../components/common/PageMeta";
 import { useAuth } from "../auth/auth.store";
+import { hasPermission, PERMISSIONS } from "../auth/permissions";
 import { useMyGyms } from "../features/gyms/gyms.hooks";
 import type { GymResponse } from "../features/gyms/gyms.api";
 import {
@@ -34,6 +35,8 @@ const toLocalInput = (iso: string) => (iso ? iso.slice(0, 16) : "");
 
 const Calendar: React.FC = () => {
   const { user } = useAuth();
+  // Staff see the schedule; scheduling sessions needs classes:manage.
+  const canSchedule = hasPermission(user, PERMISSIONS.CLASSES_MANAGE);
   const { data: gyms = [] } = useMyGyms();
   const activeGymId = user?.gymId || gyms[0]?.id || "";
   const [selectedGymId, setSelectedGymId] = useState<string>(activeGymId);
@@ -142,12 +145,12 @@ const Calendar: React.FC = () => {
               plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
               initialView="dayGridMonth"
               headerToolbar={{
-                left: "prev,next addEventButton",
+                left: canSchedule ? "prev,next addEventButton" : "prev,next",
                 center: "title",
                 right: "dayGridMonth,timeGridWeek,timeGridDay",
               }}
               events={events}
-              selectable={true}
+              selectable={canSchedule}
               select={handleDateSelect}
               eventClick={handleEventClick}
               eventContent={renderEventContent}

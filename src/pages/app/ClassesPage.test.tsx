@@ -5,7 +5,7 @@ import { AxiosError, type AxiosResponse } from "axios";
 import ClassesPage from "./ClassesPage";
 import { makeGym, renderWithProviders, lastOf } from "../../test/utils";
 
-vi.mock("../../auth/auth.store", () => ({ useAuth: () => ({ user: { gymId: "gym-1" } }) }));
+vi.mock("../../auth/auth.store", () => ({ useAuth: () => ({ user: { gymId: "gym-1", permissions: ["classes:manage"] } }) }));
 vi.mock("../../features/gyms/gyms.hooks", () => ({ useMyGyms: () => ({ data: [makeGym()] }) }));
 
 const h = vi.hoisted(() => ({ classes: vi.fn(), stats: vi.fn(), create: vi.fn() }));

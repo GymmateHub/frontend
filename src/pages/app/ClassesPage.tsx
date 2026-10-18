@@ -2,6 +2,7 @@ import { getErrorMessage } from "../../api/axios";
 import { useState } from "react";
 import { Calendar, Plus, Users, Clock, BookOpen, TrendingUp, X, Loader2, AlertCircle } from "lucide-react";
 import { useAuth } from "../../auth/auth.store";
+import { hasPermission, PERMISSIONS } from "../../auth/permissions";
 import { useMyGyms } from "../../features/gyms/gyms.hooks";
 import type { GymResponse } from "../../features/gyms/gyms.api";
 import PageMeta from "../../components/common/PageMeta";
@@ -123,6 +124,7 @@ export default function ClassesPage() {
                 ))}
               </select>
             )}
+{hasPermission(user, PERMISSIONS.CLASSES_MANAGE) && (
             <button
               onClick={() => {
                 setErrorMsg(null);
@@ -132,7 +134,7 @@ export default function ClassesPage() {
             >
               <Plus className="h-4 w-4" />
               Add Class
-            </button>
+            </button>)}
           </div>
         </div>
 
