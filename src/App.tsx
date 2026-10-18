@@ -39,6 +39,8 @@ import MessagesPage from "./pages/app/MessagesPage";
 import NotificationsPage from "./pages/app/NotificationsPage";
 import SettingsPage from "./pages/app/SettingsPage";
 import GymManagementPage from "./pages/app/GymManagementPage";
+import TeamPage from "./pages/app/TeamPage";
+import AcceptInvite from "./pages/AuthPages/AcceptInvite";
 import TenantManagementPage from "./pages/app/TenantManagementPage";
 
 // Other pages
@@ -69,6 +71,8 @@ export default function App() {
           <Route path="/register" element={<PublicRoute><SignUp /></PublicRoute>} />
           <Route path="/forgot-password" element={<PublicRoute><ForgotPassword /></PublicRoute>} />
           <Route path="/reset-password" element={<PublicRoute><ResetPassword /></PublicRoute>} />
+          {/* Team invite email link; works whether or not someone is signed in */}
+          <Route path="/invite" element={<AcceptInvite />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
 
           {/* Legacy routes for backward compat */}
@@ -95,9 +99,10 @@ export default function App() {
             <Route path="/notifications" element={<NotificationsPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/profile" element={<UserProfiles />} />
-            {/* Role access is enforced centrally by ProtectedRoute via
-                src/auth/permissions.ts (SCREEN_ACCESS) */}
+            {/* Access is enforced centrally by ProtectedRoute via
+                src/auth/permissions.ts (SCREEN_PERMISSIONS) */}
             <Route path="/gym-management" element={<GymManagementPage />} />
+            <Route path="/team" element={<TeamPage />} />
             <Route path="/tenant-management" element={<TenantManagementPage />} />
           </Route>
 
