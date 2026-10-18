@@ -11,9 +11,9 @@ import React, {
   ReactNode,
 } from "react";
 import { useNavigate } from "react-router";
-import apiClient from "@/api/axios";
-import { AUTH } from "@/api/endpoints";
-import { canAccess, homeFor } from "./permissions";
+import apiClient, { tokenStorage } from "@/api/axios";
+import { AUTH, USERS } from "@/api/endpoints";
+import { canAccess, homeFor, type ActingOrg } from "./permissions";
 import type {
   StoredUser,
   LoginRequest,
@@ -66,6 +66,8 @@ export const authStorage = {
     authStorage.removeToken();
     authStorage.removeRefreshToken();
     authStorage.removeUser();
+    // Otherwise the next account to sign in would send this account's X-Gym-Id header.
+    tokenStorage.removeCurrentGym();
   },
 
   // clear user
@@ -116,6 +118,17 @@ export const authAPI = {
     gymId: string
   ): Promise<{ success: boolean; message: string; data: GymSwitchResponse }> => {
     const response = await apiClient.post(AUTH.SWITCH_GYM(gymId));
+    return response.data;
+  },
+
+  changePassword: async (
+    currentPassword: string,
+    newPassword: string
+  ): Promise<{ success: boolean; message: string; data: void }> => {
+    const response = await apiClient.post(AUTH.CHANGE_PASSWORD, {
+      currentPassword,
+      newPassword,
+    });
     return response.data;
   },
 
@@ -338,6 +351,31 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     initAuth();
   }, []);
 
+  // Sessions created before permissions existed (or by OTP auto-login) carry no permission
+  // list yet: load it from /users/me. Route guards wait while it is undefined.
+  useEffect(() => {
+    if (!user || user.permissions || !authStorage.getToken()) return;
+    let cancelled = false;
+    apiClient
+      .get(USERS.ME)
+      .then((res) => {
+        if (cancelled) return;
+        const current = authStorage.getUser();
+        if (!current) return;
+        const updated: StoredUser = { ...current, permissions: res.data?.data?.permissions ?? [] };
+        authStorage.setUser(updated);
+        setUser(updated);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        const current = authStorage.getUser();
+        if (current) setUser({ ...current, permissions: [] });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
+
   // NOTE: login deliberately does NOT toggle the global `isLoading` flag —
   // that flag drives full-page spinners in ProtectedRoute/PublicRoute and is
   // reserved for the initial auth bootstrap. Forms show their own pending
@@ -358,6 +396,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           organisationId,
           gymId,
           emailVerified,
+          permissions,
         } = response.data;
 
         // Check if email is verified
@@ -393,14 +432,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           role,
           organisationId: organisationId || "",
           gymId: gymId || "",
+          permissions,
         };
         authStorage.setUser(userData);
         setUser(userData);
 
-        // Navigate to the page the user originally wanted (if their role can
-        // open it), otherwise to their role's home screen.
+        // Navigate to the page the user originally wanted (if they may open
+        // it), otherwise to their home screen.
         const target =
-          redirectTo && canAccess(role, redirectTo) ? redirectTo : homeFor(role);
+          redirectTo && canAccess(userData, redirectTo) ? redirectTo : homeFor(userData);
         navigate(target, { replace: true });
       } else {
         throw new Error(response.message || "Login failed");
@@ -456,6 +496,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         authStorage.setToken(accessToken);
         authStorage.setRefreshToken(refreshToken);
 
+        tokenStorage.setCurrentGym(newGymId);
+
         // Update user with new gym context
         const currentUser = authStorage.getUser();
         if (currentUser) {
@@ -478,6 +520,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  // Platform admin acting inside an organisation. A full page load resets cached data from the
+  // previous context; axios sends X-Organisation-Id from the stored user.
+  const setActingOrg = (actingOrg: ActingOrg | null) => {
+    const current = authStorage.getUser();
+    if (!current) return;
+    const updated: StoredUser = { ...current, actingOrg, gymId: "" };
+    authStorage.setUser(updated);
+    tokenStorage.removeCurrentGym();
+    window.location.assign(homeFor(updated));
+  };
+
+  const startActingAs = (org: ActingOrg) => setActingOrg(org);
+  const stopActing = () => setActingOrg(null);
+
   const value: AuthContextType = {
     user,
     isAuthenticated: !!user && authStorage.isAuthenticated(),
@@ -486,6 +542,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     logout,
     refreshUserData,
     switchGym,
+    startActingAs,
+    stopActing,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

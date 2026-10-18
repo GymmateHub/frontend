@@ -6,20 +6,39 @@ import apiClient from "@/api/axios";
 import { INVENTORY, SUPPLIERS } from "@/api/endpoints";
 import type { ApiResponse } from "@/api/axios";
 
+/** Mirrors backend `InventoryCategory`. */
+export const INVENTORY_CATEGORIES = [
+  { value: "SUPPLEMENTS", label: "Supplements" },
+  { value: "APPAREL", label: "Apparel" },
+  { value: "ACCESSORIES", label: "Accessories" },
+  { value: "SUPPLIES", label: "Supplies" },
+  { value: "MERCHANDISE", label: "Merchandise" },
+  { value: "EQUIPMENT_PARTS", label: "Equipment parts" },
+  { value: "OTHER", label: "Other" },
+] as const;
+
+export const inventoryCategoryLabel = (category: string | null | undefined): string =>
+  INVENTORY_CATEGORIES.find((c) => c.value === category?.toUpperCase())?.label ?? category ?? "—";
+
+/** Mirrors backend `InventoryItemResponse` (inventory/api/dto). */
 export interface InventoryItemResponse {
   id: string;
-  gymId: string;
+  gymId: string | null;
+  organisationId: string;
   name: string;
-  description: string;
-  sku: string;
+  description: string | null;
+  sku: string | null;
   category: string;
-  quantity: number;
-  minQuantity: number;
-  reorderPoint: number;
-  unitPrice: number;
-  costPrice: number;
-  supplierId: string;
-  location: string;
+  currentStock: number;
+  minimumStock: number | null;
+  maximumStock: number | null;
+  reorderPoint: number | null;
+  reorderQuantity: number | null;
+  unitCost: number | null;
+  unitPrice: number | null;
+  unit: string | null;
+  supplierId: string | null;
+  location: string | null;
   active: boolean;
   createdAt: string;
   updatedAt: string;
@@ -52,16 +71,17 @@ export interface InventoryMovementResponse {
   createdAt: string;
 }
 
+/** Body of `POST /inventory/items`. The API has no initial-stock field: see `initialStock` on the create hook. */
 export interface InventoryItemCreateRequest {
+  gymId?: string;
   name: string;
+  category: string;
   description?: string;
   sku?: string;
-  category: string;
-  quantity: number;
-  minQuantity?: number;
+  minimumStock?: number;
   reorderPoint?: number;
+  unitCost?: number;
   unitPrice: number;
-  costPrice?: number;
   supplierId?: string;
   location?: string;
 }
@@ -95,8 +115,8 @@ export const inventoryAPI = {
     const response = await apiClient.post(INVENTORY.ITEMS, data);
     return response.data;
   },
-  recordPurchase: async (id: string, quantity: number): Promise<ApiResponse<InventoryMovementResponse>> => {
-    const response = await apiClient.post(INVENTORY.PURCHASE(id), { quantity });
+  recordPurchase: async (id: string, quantity: number, unitCost?: number): Promise<ApiResponse<InventoryMovementResponse>> => {
+    const response = await apiClient.post(INVENTORY.PURCHASE(id), { movementType: "PURCHASE", quantity, unitCost });
     return response.data;
   },
   recordSale: async (id: string, quantity: number): Promise<ApiResponse<InventoryMovementResponse>> => {

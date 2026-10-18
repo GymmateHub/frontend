@@ -63,6 +63,7 @@ export interface MemberResponse {
 }
 
 export interface MemberCreateRequest {
+  gymId?: string;
   email: string;
   firstName: string;
   lastName: string;

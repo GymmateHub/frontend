@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Building2, MoreHorizontal, Filter } from "lucide-react";
 import PageMeta from "../../components/common/PageMeta";
 import { useTenants } from "../../features/admin/admin.hooks";
+import { useAuth } from "../../auth/auth.store";
 
 type StatusFilter = "all" | "active" | "suspended" | "pending";
 
@@ -30,6 +31,7 @@ export default function TenantManagementPage() {
   const [search, setSearch] = useState("");
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const { data: tenants = [], isLoading } = useTenants();
+  const { startActingAs } = useAuth();
   // Menu is rendered position:fixed so the table's scroll container can't
   // clip it; we anchor it to the trigger button's viewport coordinates.
   const [menuPos, setMenuPos] = useState<{ top: number; right: number } | null>(null);
@@ -183,6 +185,16 @@ export default function TenantManagementPage() {
             className="fixed z-50 w-40 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg py-1"
             style={{ top: menuPos.top, right: menuPos.right }}
           >
+            <button
+              onClick={() => {
+                const tenant = tenants.find((t) => t.id === activeMenu);
+                setActiveMenu(null);
+                if (tenant) startActingAs({ id: tenant.id, name: tenant.name });
+              }}
+              className="w-full text-left px-4 py-2 text-sm font-medium text-brand-600 dark:text-brand-400 hover:bg-gray-50 dark:hover:bg-white/5"
+            >
+              Act as organisation
+            </button>
             <button onClick={() => setActiveMenu(null)} className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5">View Details</button>
             <button onClick={() => setActiveMenu(null)} className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5">Change Plan</button>
             <button onClick={() => setActiveMenu(null)} className="w-full text-left px-4 py-2 text-sm text-error-600 hover:bg-error-50 dark:hover:bg-error-500/10">Suspend</button>
