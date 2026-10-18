@@ -3,6 +3,8 @@
  * React Query hooks for member management
  */
 
+import { useAuth } from "@/auth/auth.store";
+import { hasPermission, PERMISSIONS } from "@/auth/permissions";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { membersAPI, type MemberResponse, type MemberCreateRequest } from "./members.api";
@@ -297,7 +299,10 @@ export const useSignWaiver = () => {
  * Get member stats from analytics API
  */
 export const useMemberStats = () => {
+  // Org-wide analytics include revenue: only users with analytics:view may load them.
+  const { user } = useAuth();
   return useQuery({
+    enabled: hasPermission(user, PERMISSIONS.ANALYTICS_VIEW),
     queryKey: memberKeys.stats(),
     queryFn: async () => {
       // Fetch analytics data for member stats

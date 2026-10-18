@@ -10,7 +10,7 @@ import {
   type AudienceType,
   type CampaignStatus,
 } from "../../features/newsletters";
-import { useAuth } from "../../auth/auth.store";
+import { useActiveGym } from "../../features/gyms/useActiveGym";
 
 type TabType = "email" | "sms" | "whatsapp";
 
@@ -42,8 +42,7 @@ export default function MessagesPage() {
   const [activeTab, setActiveTab] = useState<TabType>("email");
   const { isOpen, openModal, closeModal } = useModal();
 
-  const { user } = useAuth();
-  const gymId = user?.gymId;
+  const { gymId } = useActiveGym();
 
   const { data: campaigns = [], isLoading } = useCampaigns(gymId);
   const createCampaign = useCreateCampaign();

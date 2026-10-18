@@ -87,15 +87,16 @@ export const billingAPI = {
     return response.data;
   },
   upgrade: async (tierName: string): Promise<ApiResponse<SubscriptionResponse>> => {
-    const response = await apiClient.post(SUBSCRIPTIONS.UPGRADE, { tierName });
+    const response = await apiClient.post(SUBSCRIPTIONS.UPGRADE, { newTierName: tierName });
     return response.data;
   },
   downgrade: async (tierName: string): Promise<ApiResponse<SubscriptionResponse>> => {
-    const response = await apiClient.post(SUBSCRIPTIONS.DOWNGRADE, { tierName });
+    const response = await apiClient.post(SUBSCRIPTIONS.DOWNGRADE, { newTierName: tierName });
     return response.data;
   },
-  cancel: async (reason?: string): Promise<ApiResponse<SubscriptionResponse>> => {
-    const response = await apiClient.post(SUBSCRIPTIONS.CANCEL, { reason });
+  // Backend takes `immediate` as a query param; there is no request body.
+  cancel: async (immediate = false): Promise<ApiResponse<SubscriptionResponse>> => {
+    const response = await apiClient.post(SUBSCRIPTIONS.CANCEL, null, { params: { immediate } });
     return response.data;
   },
   reactivate: async (): Promise<ApiResponse<SubscriptionResponse>> => {
@@ -114,8 +115,11 @@ export const billingAPI = {
     const response = await apiClient.get(SUBSCRIPTION_PAYMENTS.METHODS);
     return response.data;
   },
-  attachPaymentMethod: async (paymentMethodId: string): Promise<ApiResponse<PaymentMethodResponse>> => {
-    const response = await apiClient.post(SUBSCRIPTION_PAYMENTS.METHODS, { paymentMethodId });
+  attachPaymentMethod: async (stripePaymentMethodId: string): Promise<ApiResponse<PaymentMethodResponse>> => {
+    const response = await apiClient.post(SUBSCRIPTION_PAYMENTS.METHODS, {
+      stripePaymentMethodId,
+      setAsDefault: true,
+    });
     return response.data;
   },
   removePaymentMethod: async (id: string): Promise<ApiResponse<void>> => {

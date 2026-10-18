@@ -56,7 +56,9 @@ export default function VerifyEmail() {
           gymId: "",
         });
         refreshUserData();
-        navigate(homeFor(role), { replace: true });
+        // Permissions load right after (auth store); the route guard then sends
+        // the user to their home screen.
+        navigate(homeFor(undefined), { replace: true });
       } else {
         // Fallback for older backend responses that don't issue tokens on verify.
         navigate("/login", { state: { verified: true } });

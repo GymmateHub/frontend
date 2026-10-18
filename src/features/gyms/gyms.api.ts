@@ -8,35 +8,28 @@ import { GYMS, GYM_AREAS, ORGANISATIONS } from "@/api/endpoints";
 import type { ApiResponse } from "@/api/axios";
 
 // Gym Types
+/** Mirrors backend `GymResponse` (gym/api/dto/GymResponse.java). */
 export interface GymResponse {
   id: string;
   organisationId: string;
   name: string;
-  description: string;
-  email: string;
-  phone: string;
-  website: string;
-  logoUrl: string;
+  description: string | null;
+  contactEmail: string | null;
+  contactPhone: string | null;
+  website: string | null;
+  logoUrl: string | null;
   address: {
-    street: string;
-    city: string;
-    state: string;
-    postalCode: string;
-    country: string;
-  };
-  businessSettings: {
-    openingTime: string;
-    closingTime: string;
-    timezone: string;
-    currency: string;
-    taxRate: number;
-  };
-  subscription: {
-    tier: string;
-    status: string;
-    startDate: string;
-    endDate: string;
-  };
+    street: string | null;
+    city: string | null;
+    state: string | null;
+    postalCode: string | null;
+    country: string | null;
+  } | null;
+  /** ISO 4217 code, e.g. "NGN". */
+  currency: string | null;
+  timezone: string | null;
+  /** JSON string, see `BusinessHours` in utils/businessHours.ts. */
+  businessHours: string | null;
   status: string;
   active: boolean;
   createdAt: string;
@@ -66,11 +59,13 @@ export interface GymAreaResponse {
   active: boolean;
 }
 
+/** Form-shaped request; `gymsAPI.create` maps it to the backend's flat `CreateGymRequest`. */
 export interface GymCreateRequest {
   name: string;
   description?: string;
   email: string;
-  phone?: string;
+  /** Required by the API. */
+  phone: string;
   website?: string;
   address: {
     street: string;
@@ -79,14 +74,49 @@ export interface GymCreateRequest {
     postalCode: string;
     country: string;
   };
+  /** New gyms otherwise default to USD on the server. */
+  currency?: string;
+  timezone?: string;
 }
 
+/** Backend `organisation/api/dto/CreateGymRequest`. */
+export function toCreateGymPayload(data: GymCreateRequest) {
+  const blankToUndefined = (v: string | undefined) => (v && v.trim() ? v.trim() : undefined);
+  return {
+    name: data.name.trim(),
+    description: blankToUndefined(data.description),
+    contactEmail: data.email.trim(),
+    contactPhone: data.phone.trim(),
+    address: blankToUndefined(data.address.street),
+    city: blankToUndefined(data.address.city),
+    state: blankToUndefined(data.address.state),
+    postalCode: blankToUndefined(data.address.postalCode),
+    country: blankToUndefined(data.address.country),
+    currency: data.currency,
+    timezone: data.timezone,
+  };
+}
+
+/**
+ * Body of `PUT /gyms/{id}`. The backend validates name, contactEmail and contactPhone as
+ * required and overwrites the whole address when any address field is sent, so callers must
+ * send the current values for everything they are not changing.
+ */
 export interface GymUpdateRequest {
-  name?: string;
+  name: string;
+  contactEmail: string;
+  contactPhone: string;
   description?: string;
-  email?: string;
-  phone?: string;
+  street?: string;
+  city?: string;
+  state?: string;
+  postalCode?: string;
+  country?: string;
   website?: string;
+  logoUrl?: string;
+  timezone?: string;
+  currency?: string;
+  maxMembers?: number;
 }
 
 export interface AddressUpdateRequest {
@@ -98,11 +128,11 @@ export interface AddressUpdateRequest {
 }
 
 export interface BusinessSettingsUpdateRequest {
-  openingTime?: string;
-  closingTime?: string;
   timezone?: string;
   currency?: string;
-  taxRate?: number;
+  /** JSON string, see utils/businessHours.ts */
+  businessHours?: string;
+  maxMembers?: number;
 }
 
 export interface GymAreaCreateRequest {
@@ -116,9 +146,9 @@ export interface GymAreaCreateRequest {
  * Gyms API Functions
  */
 export const gymsAPI = {
-  // Get all gyms
+  // Get all gyms (scoped to user's organisation/gyms)
   getAll: async (): Promise<ApiResponse<GymResponse[]>> => {
-    const response = await apiClient.get(GYMS.BASE);
+    const response = await apiClient.get(GYMS.MY_GYMS);
     return response.data;
   },
 
@@ -142,7 +172,7 @@ export const gymsAPI = {
 
   // Create gym (via organisation)
   create: async (data: GymCreateRequest): Promise<ApiResponse<GymResponse>> => {
-    const response = await apiClient.post(ORGANISATIONS.GYMS, data);
+    const response = await apiClient.post(ORGANISATIONS.GYMS, toCreateGymPayload(data));
     return response.data;
   },
 

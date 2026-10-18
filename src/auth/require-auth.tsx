@@ -31,10 +31,13 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to="/unauthorized" replace />;
   }
 
-  // Central role gating from the SCREEN_ACCESS map — a user landing on a
-  // screen their role can't open is sent to their own home screen.
-  if (user && !canAccess(user.role, location.pathname)) {
-    return <Navigate to={homeFor(user.role)} replace />;
+  // Permissions load after login for older sessions; wait instead of bouncing.
+  if (user && !user.permissions) return <LoadingSpinner />;
+
+  // Central gating from SCREEN_PERMISSIONS — a user landing on a screen they
+  // can't open is sent to their own home screen.
+  if (user && !canAccess(user, location.pathname)) {
+    return <Navigate to={homeFor(user)} replace />;
   }
 
   return <>{children}</>;
@@ -49,7 +52,10 @@ export const PublicRoute: React.FC<PublicRouteProps> = ({ children }) => {
 
   if (isLoading) return <LoadingSpinner />;
 
-  if (isAuthenticated) return <Navigate to={homeFor(user?.role)} replace />;
+  if (isAuthenticated) {
+    if (user && !user.permissions) return <LoadingSpinner />;
+    return <Navigate to={homeFor(user)} replace />;
+  }
 
   return <>{children}</>;
 };

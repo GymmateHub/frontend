@@ -1,3 +1,5 @@
+import type { ActingOrg } from "./permissions";
+
 /**
  * Auth Types
  * Type definitions for authentication-related entities
@@ -31,6 +33,10 @@ export interface StoredUser {
   role: string;
   organisationId: string;
   gymId: string;
+  /** Permission authorities from the backend; undefined until loaded (older sessions). */
+  permissions?: string[];
+  /** Set while a platform admin acts inside an organisation (sent as X-Organisation-Id). */
+  actingOrg?: ActingOrg | null;
 }
 
 // Login
@@ -50,6 +56,7 @@ export interface LoginResponse {
   organisationId: string | null;
   gymId: string | null;
   emailVerified: boolean;
+  permissions?: string[];
 }
 
 // Registration
@@ -158,4 +165,7 @@ export interface AuthContextType {
   logout: () => Promise<void>;
   refreshUserData: () => void;
   switchGym: (gymId: string) => Promise<void>;
+  /** Platform admin: act inside an organisation (every request is audited by the backend). */
+  startActingAs: (org: ActingOrg) => void;
+  stopActing: () => void;
 }

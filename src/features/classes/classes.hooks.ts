@@ -3,6 +3,8 @@
  * React Query hooks for class management
  */
 
+import { useAuth } from "@/auth/auth.store";
+import { hasPermission, PERMISSIONS } from "@/auth/permissions";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -298,7 +300,10 @@ export const useCreateClassCategory = () => {
  * Get class stats from analytics API
  */
 export const useClassStats = () => {
+  // Org-wide analytics include revenue: only users with analytics:view may load them.
+  const { user } = useAuth();
   return useQuery({
+    enabled: hasPermission(user, PERMISSIONS.ANALYTICS_VIEW),
     queryKey: classKeys.stats(),
     queryFn: async () => {
       // Fetch analytics data for class stats

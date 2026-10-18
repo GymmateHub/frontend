@@ -1,0 +1,16 @@
+{
+  "name": "gymmate-e2e",
+  "private": true,
+  "description": "End-to-end tests: the dashboard driven in a browser against a real backend",
+  "scripts": {
+    "stack:up": "./scripts/stack-up.sh",
+    "stack:down": "./scripts/stack-down.sh",
+    "test": "playwright test",
+    "test:fresh": "rm -f state.json && playwright test",
+    "report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.0",
+    "@types/node": "^26.0.1"
+  }
+}

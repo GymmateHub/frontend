@@ -15,6 +15,9 @@ export const AUTH = {
   PASSWORD_RESET_CONFIRM: "/auth/password-reset/confirm",
   SWITCH_GYM: (gymId: string) => `/auth/switch-gym/${gymId}`,
   CURRENT_GYM: "/auth/current-gym",
+  CHANGE_PASSWORD: "/auth/change-password",
+  INVITE_VALIDATE: "/auth/invite/validate",
+  INVITE_ACCEPT: "/auth/invite/accept",
 } as const;
 
 export const ADMIN = {

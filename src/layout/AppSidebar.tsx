@@ -10,6 +10,7 @@ import {
 } from "../icons";
 import {
   Users,
+  UserCog,
   Dumbbell,
   CreditCard,
   ShoppingCart,
@@ -23,7 +24,7 @@ import {
 } from "lucide-react";
 import { useSidebar } from "../context/SidebarContext";
 import { useAuth } from "../auth/auth.store";
-import { canAccess } from "../auth/permissions";
+import { canAccess, type AccessSubject } from "../auth/permissions";
 import SidebarWidget from "./SidebarWidget";
 
 type NavItem = {
@@ -111,6 +112,11 @@ const othersItems: NavItem[] = [
     path: "/gym-management",
   },
   {
+    icon: <UserCog className="h-5 w-5" />,
+    name: "Team",
+    path: "/team",
+  },
+  {
     icon: <Shield className="h-5 w-5" />,
     name: "Tenant Mgmt",
     path: "/tenant-management",
@@ -128,20 +134,20 @@ const othersItems: NavItem[] = [
 ];
 
 /**
- * Keep only the entries the current role may open (per SCREEN_ACCESS).
- * Groups keep the sub-entries the role can access and disappear entirely
+ * Keep only the entries the user may open (per SCREEN_PERMISSIONS).
+ * Groups keep the sub-entries the user can access and disappear entirely
  * when none remain.
  */
-const filterNavForRole = (items: NavItem[], role?: string): NavItem[] =>
+const filterNavForRole = (items: NavItem[], user?: AccessSubject | null): NavItem[] =>
   items
     .map((item): NavItem | null => {
       if (item.subItems) {
         const subItems = item.subItems.filter((sub) =>
-          canAccess(role, sub.path)
+          canAccess(user, sub.path)
         );
         return subItems.length > 0 ? { ...item, subItems } : null;
       }
-      return item.path && canAccess(role, item.path) ? item : null;
+      return item.path && canAccess(user, item.path) ? item : null;
     })
     .filter((item): item is NavItem => item !== null);
 
@@ -150,10 +156,10 @@ const AppSidebar: React.FC = () => {
   const location = useLocation();
   const { user } = useAuth();
 
-  // Single flat menu (no section headings), filtered for the user's role
+  // Single flat menu (no section headings), filtered for the user's permissions
   const mainNav = useMemo(
-    () => filterNavForRole([...navItems, ...othersItems], user?.role),
-    [user?.role]
+    () => filterNavForRole([...navItems, ...othersItems], user),
+    [user]
   );
 
   const [openSubmenu, setOpenSubmenu] = useState<{

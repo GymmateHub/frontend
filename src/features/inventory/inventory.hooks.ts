@@ -52,10 +52,30 @@ export const useCreateInventoryItem = () => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   return useMutation({
-    mutationFn: async (data: InventoryItemCreateRequest) => { const r = await inventoryAPI.create(data); return r.data; },
-    onSuccess: (item) => {
+    // The create endpoint takes no starting quantity, so opening stock is recorded as a purchase.
+    mutationFn: async ({ initialStock, ...data }: InventoryItemCreateRequest & { initialStock?: number }) => {
+      const created = (await inventoryAPI.create(data)).data;
+      let stockRecorded = true;
+      if (initialStock && initialStock > 0) {
+        try {
+          await inventoryAPI.recordPurchase(created.id, initialStock, data.unitCost);
+        } catch {
+          stockRecorded = false;
+        }
+      }
+      return { item: created, stockRecorded };
+    },
+    onSuccess: ({ item, stockRecorded }) => {
       queryClient.invalidateQueries({ queryKey: inventoryKeys.all });
-      toast({ title: "Item added", description: `${item.name} has been added.` });
+      if (stockRecorded) {
+        toast({ title: "Item added", description: `${item.name} has been added.` });
+      } else {
+        toast({
+          title: "Item added without stock",
+          description: `${item.name} was created but its opening stock couldn't be recorded. Record a purchase to add stock.`,
+          variant: "destructive",
+        });
+      }
     },
     onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),
   });

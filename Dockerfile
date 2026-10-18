@@ -16,6 +16,8 @@ COPY . .
 # Build arguments and environment variables
 ARG VITE_API_URL=https://api.gymmatehub.com/api
 ENV VITE_API_URL=$VITE_API_URL
+ARG VITE_STRIPE_PUBLISHABLE_KEY=
+ENV VITE_STRIPE_PUBLISHABLE_KEY=$VITE_STRIPE_PUBLISHABLE_KEY
 
 # Ensure .env.production is used for Docker build
 RUN if [ -f .env.production ]; then cp .env.production .env; fi
