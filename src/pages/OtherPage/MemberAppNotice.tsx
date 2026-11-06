@@ -1,4 +1,3 @@
-import { Smartphone } from "lucide-react";
 import Button from "../../components/ui/button/Button";
 import { useAuth } from "../../auth/auth.store";
 
@@ -13,9 +12,13 @@ export default function MemberAppNotice() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 px-4 dark:bg-gray-900">
       <div className="w-full max-w-md rounded-2xl bg-white p-8 text-center shadow-theme-sm dark:bg-gray-800">
-        <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/10">
-          <Smartphone className="h-7 w-7 text-brand-500" />
-        </div>
+        <img
+          src="/images/logo/logo-icon.svg"
+          alt="GymMate app icon"
+          width={56}
+          height={56}
+          className="mx-auto mb-5 h-14 w-14"
+        />
         <h1 className="mb-2 text-xl font-semibold text-gray-800 dark:text-white/90">
           Hi {user?.firstName || "there"}, GymMateHub for members lives on
           mobile

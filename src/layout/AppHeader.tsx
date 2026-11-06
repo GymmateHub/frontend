@@ -128,8 +128,8 @@ const AppHeader: React.FC = () => {
           </button>
 
           <Link to="/" className="lg:hidden">
-            <img className="dark:hidden" src="/images/logo/logo.svg" alt="Logo" />
-            <img className="hidden dark:block" src="/images/logo/logo-dark.svg" alt="Logo" />
+            <img className="dark:hidden" src="/images/logo/logo.svg" alt="GymMate" />
+            <img className="hidden dark:block" src="/images/logo/logo-dark.svg" alt="GymMate" />
           </Link>
 
           <button
