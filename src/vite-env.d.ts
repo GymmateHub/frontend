@@ -3,6 +3,8 @@
 interface ImportMetaEnv {
   readonly VITE_API_URL?: string;
   readonly VITE_STRIPE_PUBLISHABLE_KEY?: string;
+  /** Canonical public origin for SEO tags, e.g. https://gymmatehub.com */
+  readonly VITE_SITE_URL?: string;
 }
 
 interface ImportMeta {

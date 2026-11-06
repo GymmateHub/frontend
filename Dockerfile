@@ -34,6 +34,9 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 # Copy the built assets from the builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
 
+# nginx workers must be able to read every file, whatever modes the build context had
+RUN chmod -R a+rX /usr/share/nginx/html
+
 # Expose port 80
 EXPOSE 80
 

@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { SidebarProvider, useSidebar } from "../context/SidebarContext";
 import { Outlet } from "react-router";
 import ActingOrgBanner from "./ActingOrgBanner";
@@ -22,7 +23,16 @@ const LayoutContent: React.FC = () => {
         <AppHeader />
         <ActingOrgBanner />
         <div className="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">
-          <Outlet />
+          {/* Pages load on demand; keep the sidebar and header up while one loads. */}
+          <Suspense
+            fallback={
+              <div className="flex min-h-[40vh] items-center justify-center">
+                <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-500 border-t-transparent" />
+              </div>
+            }
+          >
+            <Outlet />
+          </Suspense>
         </div>
       </div>
     </div>
