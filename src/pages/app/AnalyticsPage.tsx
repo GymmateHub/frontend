@@ -28,7 +28,7 @@ export default function AnalyticsPage() {
 
   return (
     <>
-      <PageMeta title="Analytics | GymMate" description="Business analytics and insights" />
+      <PageMeta title="Analytics | GymMateHub" description="Business analytics and insights" />
 
       <div className="space-y-6">
         {/* Header */}

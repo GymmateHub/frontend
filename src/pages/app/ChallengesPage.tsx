@@ -85,7 +85,7 @@ function ChallengesView({ gymId }: { gymId: string }) {
 
   return (
     <>
-      <PageMeta title="Challenges | GymMate" description="Manage fitness challenges and competitions" />
+      <PageMeta title="Challenges | GymMateHub" description="Manage fitness challenges and competitions" />
 
       <div className="space-y-6">
         {/* Header */}

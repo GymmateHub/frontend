@@ -37,7 +37,7 @@ export default function BillingPage() {
 
   return (
     <>
-      <PageMeta title="Billing | GymMate" description="Manage your subscription and billing" />
+      <PageMeta title="Billing | GymMateHub" description="Manage your subscription and billing" />
 
       <div className="space-y-6">
         <div className="flex items-center justify-between">

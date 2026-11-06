@@ -84,7 +84,7 @@ export default function VerifyEmail() {
 
   return (
     <>
-      <PageMeta title="Verify Email | GymMate" description="Verify your email address" />
+      <PageMeta title="Verify Email | GymMateHub" description="Verify your email address" />
       <AuthLayout>
         <div className="flex flex-col flex-1">
           <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">

@@ -104,7 +104,7 @@ export default function AdminDashboardPage() {
   return (
     <>
       <PageMeta
-        title="Platform Overview | GymMate"
+        title="Platform Overview | GymMateHub"
         description="GymMateHub platform administration overview"
       />
 

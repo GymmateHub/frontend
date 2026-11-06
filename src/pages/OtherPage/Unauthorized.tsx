@@ -4,7 +4,7 @@ import PageMeta from "../../components/common/PageMeta";
 export default function Unauthorized() {
   return (
     <>
-      <PageMeta title="Unauthorized | GymMate" description="Access denied" />
+      <PageMeta title="Unauthorized | GymMateHub" description="Access denied" />
       <div className="flex min-h-screen flex-col items-center justify-center bg-white dark:bg-gray-900">
         <div className="text-center">
           <h1 className="mb-4 text-6xl font-bold text-gray-800 dark:text-white/90">

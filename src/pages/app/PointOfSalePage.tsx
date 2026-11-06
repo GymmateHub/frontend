@@ -67,7 +67,7 @@ export default function PointOfSalePage() {
 
   return (
     <>
-      <PageMeta title="Point of Sale | GymMate" description="Sell retail products, drinks, and snacks" />
+      <PageMeta title="Point of Sale | GymMateHub" description="Sell retail products, drinks, and snacks" />
 
       <div className="space-y-6">
         {/* Header */}

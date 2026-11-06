@@ -70,7 +70,7 @@ export default function GymManagementPage() {
 
   return (
     <>
-      <PageMeta title="Gym Management | GymMate" description="Manage your gym locations" />
+      <PageMeta title="Gym Management | GymMateHub" description="Manage your gym locations" />
 
       <div className="space-y-6">
         {/* Header */}

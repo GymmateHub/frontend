@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router";
 import PageMeta from "../../components/common/PageMeta";
+import { BrandMark } from "../../components/brand/BrandLogo";
 
 /* ────────────────────────── Product-tour mockups ────────────────────────── */
 
@@ -101,7 +102,7 @@ function RenewalsMock() {
       <div className="w-full max-w-[300px] rounded-[2rem] border-[6px] border-gray-900 dark:border-gray-600 bg-white dark:bg-gray-900 overflow-hidden shadow-theme-xl">
         {/* WhatsApp-style header */}
         <div className="flex items-center gap-3 px-4 py-3 bg-emerald-700 text-white">
-          <div className="h-8 w-8 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">GM</div>
+          <div className="h-8 w-8 rounded-full bg-white/20 flex items-center justify-center"><BrandMark tone="white" size={18} /></div>
           <div>
             <p className="text-sm font-semibold leading-tight">Iron Temple Fitness</p>
             <p className="text-[10px] text-emerald-100">via GymMateHub</p>

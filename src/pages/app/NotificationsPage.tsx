@@ -79,7 +79,7 @@ export default function NotificationsPage() {
 
   return (
     <>
-      <PageMeta title="Notifications | GymMate" description="View your notifications and alerts" />
+      <PageMeta title="Notifications | GymMateHub" description="View your notifications and alerts" />
 
       <div className="space-y-6">
         {/* Header */}

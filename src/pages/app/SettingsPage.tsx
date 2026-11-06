@@ -13,7 +13,7 @@ export default function SettingsPage() {
 
   return (
     <>
-      <PageMeta title="Settings | GymMate" description="Gym settings and configuration" />
+      <PageMeta title="Settings | GymMateHub" description="Gym settings and configuration" />
 
       <div className="space-y-6 max-w-4xl">
         <div>
