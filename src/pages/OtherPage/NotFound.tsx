@@ -8,6 +8,7 @@ export default function NotFound() {
       <PageMeta
         title="Page Not Found | GymMateHub"
         description="The page you are looking for does not exist."
+        noindex
       />
       <div className="relative flex flex-col items-center justify-center min-h-screen p-6 overflow-hidden z-1">
         <GridShape />

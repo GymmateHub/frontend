@@ -22,6 +22,11 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  ssr: {
+    // Build-time prerender (src/prerender/entry-server.tsx): bundle this
+    // CommonJS package, whose named exports Node can't import directly.
+    noExternal: ["react-helmet-async"],
+  },
   test: {
     environment: 'jsdom',
     setupFiles: ['./src/vitest.setup.ts'],

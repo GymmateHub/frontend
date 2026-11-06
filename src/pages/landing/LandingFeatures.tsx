@@ -271,7 +271,11 @@ export default function LandingFeatures() {
 
   return (
     <>
-      <PageMeta title="Features | GymMateHub" description="See the actual product: members, payments, WhatsApp renewal reminders, and reports." />
+      <PageMeta
+        path="/features"
+        title="Features: Members, Payments, WhatsApp Reminders | GymMateHub"
+        description="Member profiles, payment tracking for cash and bank transfers, automatic WhatsApp and SMS renewal reminders, attendance and revenue reports. See how it works."
+      />
 
       <div className="pt-20 min-h-screen">
         {/* Hero */}

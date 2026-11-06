@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Mail, Phone, MapPin, Clock, MessageSquare, Send, BookOpen, HelpCircle } from "lucide-react";
 import { toast } from "sonner";
 import PageMeta from "../../components/common/PageMeta";
+import { webPageSchema } from "../../seo/schema";
 import Label from "../../components/form/Label";
 import Input from "../../components/form/input/InputField";
 
@@ -62,7 +63,12 @@ export default function LandingContact() {
 
   return (
     <>
-      <PageMeta title="Contact GymMateHub - Get Support" description="Contact GymMateHub for gym software support or to chat on WhatsApp." />
+      <PageMeta
+        path="/contact"
+        title="Contact GymMateHub: Sales and Support"
+        description="Talk to the GymMateHub team about gym management software. Email support@gymmatehub.com or send us a message. We reply Monday to Friday, 9am to 6pm WAT."
+        jsonLd={webPageSchema("ContactPage", "/contact", "Contact GymMateHub")}
+      />
 
       <div className="pt-20 min-h-screen">
         {/* Hero */}
