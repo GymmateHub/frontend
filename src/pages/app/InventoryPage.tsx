@@ -97,7 +97,7 @@ export default function InventoryPage() {
 
   return (
     <>
-      <PageMeta title="Inventory | GymMate" description="Manage your gym inventory and products" />
+      <PageMeta title="Inventory | GymMateHub" description="Manage your gym inventory and products" />
 
       <div className="space-y-6">
         {/* Header */}

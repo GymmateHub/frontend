@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, Outlet } from "react-router";
+import { BrandLockup } from "../components/brand/BrandLogo";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Mail, Phone, MapPin, Sun, Moon } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
@@ -37,11 +38,8 @@ function LandingHeader() {
     >
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
-          <Link to="/" className="flex-shrink-0 flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-brand-500 flex items-center justify-center">
-              <span className="text-white font-bold text-sm">GM</span>
-            </div>
-            <span className="font-bold text-gray-800 dark:text-white text-lg">GymMateHub</span>
+          <Link to="/" className="flex-shrink-0 flex items-center">
+            <BrandLockup className="h-8" />
           </Link>
 
           <div className="hidden md:flex items-center gap-1">
@@ -170,11 +168,8 @@ function LandingFooter() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-12">
           <div className="lg:col-span-2">
-            <Link to="/" className="flex items-center gap-2 mb-4">
-              <div className="h-8 w-8 rounded-lg bg-brand-500 flex items-center justify-center">
-                <span className="text-white font-bold text-sm">GM</span>
-              </div>
-              <span className="font-bold text-gray-800 dark:text-white text-lg">GymMateHub</span>
+            <Link to="/" className="flex w-fit items-center mb-4">
+              <BrandLockup className="h-8" />
             </Link>
             <p className="text-gray-500 dark:text-gray-400 text-sm mb-6 max-w-xs">
               The simplest gym management platform built for Africa and emerging markets.

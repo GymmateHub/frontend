@@ -6,8 +6,8 @@ export default function SignUp() {
   return (
     <>
       <PageMeta
-        title="Sign Up | GymMate"
-        description="Create your GymMate account"
+        title="Sign Up | GymMateHub"
+        description="Create your GymMateHub account"
       />
       <AuthLayout>
         <SignUpForm />

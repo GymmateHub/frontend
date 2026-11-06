@@ -78,7 +78,7 @@ export default function TeamPage() {
 
   return (
     <>
-      <PageMeta title="Team | GymMate" description="Managers, staff and trainers of your organisation" />
+      <PageMeta title="Team | GymMateHub" description="Managers, staff and trainers of your organisation" />
       <div className="space-y-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>

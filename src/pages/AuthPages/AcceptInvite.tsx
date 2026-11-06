@@ -92,7 +92,7 @@ export default function AcceptInvite() {
 
   return (
     <>
-      <PageMeta title="Join Your Team | GymMate" description="Accept your GymMate team invite" />
+      <PageMeta title="Join Your Team | GymMateHub" description="Accept your GymMateHub team invite" />
       <AuthLayout>
         <div className="flex flex-col flex-1">
           <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">

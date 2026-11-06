@@ -54,7 +54,7 @@ export default function TenantManagementPage() {
 
   return (
     <>
-      <PageMeta title="Tenant Management | GymMate" description="Super admin tenant management" />
+      <PageMeta title="Tenant Management | GymMateHub" description="Super admin tenant management" />
 
       <div className="flex min-h-[calc(100vh-120px)] flex-col gap-6">
         {/* Header */}

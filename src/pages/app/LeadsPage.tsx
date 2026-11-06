@@ -114,7 +114,7 @@ export default function LeadsPage() {
 
   return (
     <>
-      <PageMeta title="Leads | GymMate" description="Manage your gym leads and prospects" />
+      <PageMeta title="Leads | GymMateHub" description="Manage your gym leads and prospects" />
 
       <div className="space-y-6">
         {/* Header */}

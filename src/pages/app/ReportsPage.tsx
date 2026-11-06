@@ -156,7 +156,7 @@ export default function ReportsPage() {
 
   return (
     <>
-      <PageMeta title="Reports | GymMate" description="Export gym business reports" />
+      <PageMeta title="Reports | GymMateHub" description="Export gym business reports" />
 
       <div className="space-y-6">
         {/* Header */}

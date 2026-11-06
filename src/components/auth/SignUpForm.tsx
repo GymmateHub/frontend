@@ -81,7 +81,7 @@ export default function SignUpForm() {
               Sign Up
             </h1>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Create your GymMate account
+              Create your GymMateHub account
             </p>
           </div>
 
