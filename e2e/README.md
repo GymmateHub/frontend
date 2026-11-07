@@ -36,6 +36,7 @@ The specs run in order and share accounts through `state.json` (created by `01-`
 | `02-owner-operations` | Bug sheet GMH-004 to 017: currency, Quick Actions, members, plans, classes, challenges, inventory, equipment, leads, POS, analytics |
 | `03-team-roles` | Owner invites a Manager, Staff and Trainer from the Team page and each joins through the emailed link; every screen against the permission matrix (`src/auth/permissions.ts`, backend `RolePermissions`), with no 403s on allowed screens; allowed and refused actions per role |
 | `04-platform-members-isolation` | Calendar scheduling (GMH-011), Super Admin (including the audited act-as-organisation), member password reset and login, the mobile member API, a second organisation trying to read and change the first one's data, logout |
+| `05-reports-billing-settings` | Bug sheet GMH-004 and GMH-018 to 029: header Command Palette search, Reports generation and CSV export, Billing Add Card & Upgrade Plan modals, Gym Management Add Gym modal, Profile view and edit, Settings Gym Profile, Logo URL, Business Hours, Notification Preferences, Security Change Password and 2FA Coming soon |
 
 `03-team-roles` mirrors `SCREEN_PERMISSIONS` from `src/auth/permissions.ts`; update both together.
 The Super Admin account is the one the backend's `dev` profile seeds (`application-dev.yml`).

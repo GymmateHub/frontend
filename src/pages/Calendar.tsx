@@ -121,7 +121,7 @@ const Calendar: React.FC = () => {
   return (
     <>
       <PageMeta
-        title="Class Calendar | GymMate"
+        title="Class Calendar | GymMateHub"
         description="Manage your gym class schedule and bookings."
       />
       <div className="space-y-4">

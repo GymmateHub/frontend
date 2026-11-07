@@ -110,7 +110,7 @@ export default function MembersPage() {
 
   return (
     <>
-      <PageMeta title="Members | GymMate" description="Manage your gym members" />
+      <PageMeta title="Members | GymMateHub" description="Manage your gym members" />
 
       <div className="space-y-6">
         <div className="flex items-center justify-between">

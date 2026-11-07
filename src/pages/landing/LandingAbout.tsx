@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Heart, Target, Lightbulb, Shield, Eye, TrendingUp, Rocket, Users, Award, CheckCircle } from "lucide-react";
 import PageMeta from "../../components/common/PageMeta";
+import { webPageSchema } from "../../seo/schema";
 
 const containerVariants = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.1 } } };
 const itemVariants = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5 } } };
@@ -29,7 +30,12 @@ const whyChooseUs = [
 export default function LandingAbout() {
   return (
     <>
-      <PageMeta title="About GymMateHub - Simple Gym Software for Africa" description="Learn about GymMateHub's mission to simplify gym management for Africa." />
+      <PageMeta
+        path="/about"
+        title="About GymMateHub: Gym Software Built in Lagos"
+        description="GymMateHub is gym management software built in Lagos for how African gyms actually work: cash and bank transfer payments, WhatsApp reminders and simple setup."
+        jsonLd={webPageSchema("AboutPage", "/about", "About GymMateHub")}
+      />
 
       <div className="pt-20 min-h-screen">
         {/* Hero */}

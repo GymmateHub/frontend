@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { ArrowRight, Play, CheckCircle2, Users, Zap, Shield, BarChart3, Calendar, MessageSquare } from "lucide-react";
 import { Link } from "react-router";
 import PageMeta from "../../components/common/PageMeta";
+import { organizationSchema, softwareSchema, websiteSchema } from "../../seo/schema";
 
 const benefits = ["Start free — no card needed", "Works with bank transfers & cash", "Setup in under 10 minutes"];
 
@@ -22,7 +23,12 @@ const stats = [
 export default function LandingHome() {
   return (
     <>
-      <PageMeta title="GymMateHub - Simple Gym Management for Africa" description="Track members, collect payments, and stop missing renewals." />
+      <PageMeta
+        path="/"
+        title="Gym Management Software for Nigeria & Africa | GymMateHub"
+        description="Run your gym on GymMateHub: track members, record cash, transfer and card payments, and send WhatsApp renewal reminders. Free for up to 20 members."
+        jsonLd={[organizationSchema(), websiteSchema(), softwareSchema()]}
+      />
 
       {/* Hero */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">

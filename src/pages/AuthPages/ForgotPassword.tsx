@@ -35,7 +35,7 @@ export default function ForgotPassword() {
 
   return (
     <>
-      <PageMeta title="Forgot Password | GymMate" description="Reset your GymMate password" />
+      <PageMeta title="Forgot Password | GymMateHub" description="Reset your GymMateHub password" />
       <AuthLayout>
         <div className="flex flex-col flex-1">
           <div className="w-full max-w-md pt-10 mx-auto">

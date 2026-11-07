@@ -74,7 +74,7 @@ export default function EquipmentPage() {
 
   return (
     <>
-      <PageMeta title="Equipment | GymMate" description="Manage your gym equipment" />
+      <PageMeta title="Equipment | GymMateHub" description="Manage your gym equipment" />
 
       <div className="space-y-6">
         {/* Header */}

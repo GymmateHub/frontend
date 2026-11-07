@@ -103,7 +103,7 @@ export default function ClassesPage() {
 
   return (
     <>
-      <PageMeta title="Classes | GymMate" description="Manage your gym classes and schedules" />
+      <PageMeta title="Classes | GymMateHub" description="Manage your gym classes and schedules" />
 
       <div className="space-y-6">
         {/* Header */}

@@ -2,8 +2,28 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GymMateHub</title>
+    <meta name="description" content="Gym management software for Nigeria and Africa: track members, payments and renewals." />
+    <meta name="theme-color" content="#465FFF" />
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <!-- Default link preview for pages without their own (sign-up and app links).
+         The prerendered marketing pages replace these with page-specific tags. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="GymMateHub" />
+    <meta property="og:title" content="GymMateHub" />
+    <meta property="og:description" content="Gym management software for Nigeria and Africa: track members, payments and renewals." />
+    <meta property="og:image" content="https://gymmatehub.com/og-image.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <!-- Apply the saved theme before first paint so dark-mode users don't see a light flash. -->
+    <script>
+      try { if (localStorage.getItem("theme") === "dark") document.documentElement.classList.add("dark"); } catch (e) {}
+    </script>
+    <!-- Without JavaScript, show prerendered content that would otherwise wait for its entrance animation. -->
+    <noscript><style>#root [style*="opacity:0"] { opacity: 1 !important; transform: none !important; }</style></noscript>
   </head>
   <body class="dark:bg-gray-900">
     <div id="root"></div>
