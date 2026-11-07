@@ -79,8 +79,10 @@ ENV
 fi
 
 echo "Building backend from $BACKEND_DIR..."
-(cd "$BACKEND_DIR" && ./mvnw -q clean package -DskipTests)
-cp "$BACKEND_DIR"/target/gymmate-backend-*.jar "$WORK/app.jar"
+if [ ! -f "$WORK/app.jar" ] || [ -n "$(find "$BACKEND_DIR/src" "$BACKEND_DIR/pom.xml" -newer "$WORK/app.jar" 2>/dev/null | head -1)" ]; then
+  (cd "$BACKEND_DIR" && ./mvnw -q clean package -DskipTests)
+  cp "$BACKEND_DIR"/target/gymmate-backend-*.jar "$WORK/app.jar"
+fi
 
 if [ -f "$WORK/backend.pid" ]; then kill "$(cat "$WORK/backend.pid")" 2>/dev/null || true; sleep 2; fi
 (cd "$WORK" && exec "$JAVA_HOME/bin/java" -jar app.jar > backend.log 2>&1 < /dev/null) &
