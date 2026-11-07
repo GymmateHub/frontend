@@ -7,6 +7,7 @@
     "stack:down": "./scripts/stack-down.sh",
     "test": "playwright test",
     "test:fresh": "rm -f state.json && playwright test",
+    "test:ci": "./scripts/stack-up.sh && rm -f state.json && playwright test",
     "report": "playwright show-report"
   },
   "devDependencies": {
