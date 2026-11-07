@@ -65,7 +65,7 @@ export default function DashboardPage() {
 
   return (
     <>
-      <PageMeta title="Dashboard | GymMate" description="GymMate gym management dashboard" />
+      <PageMeta title="Dashboard | GymMateHub" description="GymMateHub gym management dashboard" />
 
       <div className="space-y-6">
         {/* Header */}

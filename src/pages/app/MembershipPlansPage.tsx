@@ -88,7 +88,7 @@ export default function MembershipPlansPage() {
 
   return (
     <>
-      <PageMeta title="Membership Plans | GymMate" description="Manage gym membership tiers and pricing" />
+      <PageMeta title="Membership Plans | GymMateHub" description="Manage gym membership tiers and pricing" />
 
       <div className="space-y-6">
         {/* Header */}

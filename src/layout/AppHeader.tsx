@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router";
+import { BrandLockup } from "../components/brand/BrandLogo";
 import { useSidebar } from "../context/SidebarContext";
 import { ThemeToggleButton } from "../components/common/ThemeToggleButton";
 import NotificationDropdown from "../components/header/NotificationDropdown";
@@ -128,8 +129,7 @@ const AppHeader: React.FC = () => {
           </button>
 
           <Link to="/" className="lg:hidden">
-            <img className="dark:hidden" src="/images/logo/logo.svg" alt="Logo" />
-            <img className="hidden dark:block" src="/images/logo/logo-dark.svg" alt="Logo" />
+            <BrandLockup className="h-8" />
           </Link>
 
           <button

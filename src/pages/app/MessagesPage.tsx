@@ -75,7 +75,7 @@ export default function MessagesPage() {
 
   return (
     <>
-      <PageMeta title="Messages | GymMate" description="Send email, SMS, and WhatsApp campaigns" />
+      <PageMeta title="Messages | GymMateHub" description="Send email, SMS, and WhatsApp campaigns" />
 
       <div className="space-y-6">
         {/* Header */}

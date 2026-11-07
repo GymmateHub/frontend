@@ -6,8 +6,8 @@ export default function SignIn() {
   return (
     <>
       <PageMeta
-        title="Sign In | GymMate"
-        description="Sign in to your GymMate account"
+        title="Sign In | GymMateHub"
+        description="Sign in to your GymMateHub account"
       />
       <AuthLayout>
         <SignInForm />

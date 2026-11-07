@@ -46,7 +46,7 @@ export default function ResetPassword() {
 
   return (
     <>
-      <PageMeta title="Reset Password | GymMate" description="Set a new password" />
+      <PageMeta title="Reset Password | GymMateHub" description="Set a new password" />
       <AuthLayout>
         <div className="flex flex-col flex-1">
           <div className="w-full max-w-md pt-10 mx-auto">
