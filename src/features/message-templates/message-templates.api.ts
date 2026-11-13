@@ -95,8 +95,8 @@ export function renderTemplatePreview(
   for (const key of allKeys) {
     const sample = SAMPLE_VARIABLE_VALUES[key] ?? `[${key}]`;
     rendered = rendered
-      .replaceAll(`{{${key}}}`, sample)
-      .replaceAll(`\${${key}}`, sample);
+      .split(`{{${key}}}`).join(sample)
+      .split(`\${${key}}`).join(sample);
   }
   return rendered;
 }
