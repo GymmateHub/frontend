@@ -48,7 +48,12 @@ export const useSaveMessageTemplate = (scope: TemplateConfigScope, orgKey?: stri
       return response.data;
     },
     onSuccess: (updated) => {
-      queryClient.invalidateQueries({ queryKey: messageTemplateKeys.all });
+      queryClient.invalidateQueries({
+        queryKey:
+          scope === "platform"
+            ? messageTemplateKeys.platformList()
+            : messageTemplateKeys.orgList(orgKey),
+      });
       toast({
         title: "Template configuration saved",
         description: `${updated.name} (${updated.templateKey}) has been updated.`,
