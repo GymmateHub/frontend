@@ -17,6 +17,7 @@ import {
   ShoppingCart,
   MessageSquare,
   Bell,
+  FileCode2,
   Settings,
   Building2,
   Shield,
@@ -121,6 +122,11 @@ const othersItems: NavItem[] = [
     icon: <Shield className="h-5 w-5" />,
     name: "Tenant Mgmt",
     path: "/tenant-management",
+  },
+  {
+    icon: <FileCode2 className="h-5 w-5" />,
+    name: "Message Templates",
+    path: "/message-templates",
   },
   {
     icon: <UserCircleIcon />,

@@ -90,6 +90,7 @@ export const SCREEN_PERMISSIONS: Record<string, string[]> = {
   // Shared
   "/messages": [P.NOTIFICATIONS_VIEW],
   "/notifications": [P.NOTIFICATIONS_VIEW],
+  "/message-templates": [P.ORG_MANAGE, P.PLATFORM_ADMIN],
   "/profile": [P.ORG_VIEW, P.PLATFORM_ADMIN],
   "/settings": [P.ORG_MANAGE, P.PLATFORM_ADMIN],
   // Members are mobile-first; the web only shows them a notice page
@@ -97,7 +98,13 @@ export const SCREEN_PERMISSIONS: Record<string, string[]> = {
 };
 
 /** Screens a platform admin uses without acting inside an organisation. */
-const PLATFORM_SCREENS = new Set(["/admin-dashboard", "/tenant-management", "/profile", "/settings"]);
+const PLATFORM_SCREENS = new Set([
+  "/admin-dashboard",
+  "/tenant-management",
+  "/message-templates",
+  "/profile",
+  "/settings",
+]);
 
 export function hasPermission(subject: AccessSubject | null | undefined, permission: string): boolean {
   return !!subject?.permissions?.includes(permission);
