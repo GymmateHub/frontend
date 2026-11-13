@@ -40,6 +40,9 @@ describe("canAccess", () => {
 
   it("keeps a platform admin on platform screens until they act as an organisation", () => {
     expect(canAccess(superAdmin, "/tenant-management")).toBe(true);
+    expect(canAccess(superAdmin, "/message-templates")).toBe(true);
+    expect(canAccess(owner, "/message-templates")).toBe(true);
+    expect(canAccess(staff, "/message-templates")).toBe(false);
     expect(canAccess(superAdmin, "/members")).toBe(false);
     const acting = { ...superAdmin, actingOrg: { id: "org-1", name: "Iron Peak" } };
     expect(canAccess(acting, "/members")).toBe(true);

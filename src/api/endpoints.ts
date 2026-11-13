@@ -380,6 +380,19 @@ export const NEWSLETTERS = {
   TEMPLATE_BY_ID: (id: string) => `/newsletters/templates/${id}`,
 } as const;
 
+export const MESSAGE_TEMPLATES = {
+  PLATFORM_LIST: "/configurations/message-templates/platform",
+  PLATFORM_BY_KEY: (templateKey: string) =>
+    `/configurations/message-templates/platform/${encodeURIComponent(templateKey)}`,
+  PLATFORM_RESET: (templateKey: string) =>
+    `/configurations/message-templates/platform/${encodeURIComponent(templateKey)}/reset`,
+  ORG_LIST: "/configurations/message-templates",
+  ORG_BY_KEY: (templateKey: string) =>
+    `/configurations/message-templates/${encodeURIComponent(templateKey)}`,
+  ORG_OVERRIDE: (templateKey: string) =>
+    `/configurations/message-templates/${encodeURIComponent(templateKey)}/override`,
+} as const;
+
 export const POS = {
   SALES: "/pos/sales",
   QUICK_SALE: "/pos/sales/quick",

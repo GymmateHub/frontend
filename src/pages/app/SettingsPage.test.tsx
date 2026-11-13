@@ -22,6 +22,8 @@ describe("SettingsPage", () => {
     expect(screen.getByRole("heading", { name: "Gym Profile" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Business Hours" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Notification Preferences" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Message Templates" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Manage Templates/i })).toHaveAttribute("href", "/message-templates");
     expect(screen.getByRole("heading", { name: "Security" })).toBeInTheDocument();
     expect(screen.getByLabelText("Gym Name")).toHaveValue("Iron Temple");
   });

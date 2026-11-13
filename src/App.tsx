@@ -37,6 +37,7 @@ const LeadsPage = lazy(() => import("./pages/app/LeadsPage"));
 const ChallengesPage = lazy(() => import("./pages/app/ChallengesPage"));
 const MessagesPage = lazy(() => import("./pages/app/MessagesPage"));
 const NotificationsPage = lazy(() => import("./pages/app/NotificationsPage"));
+const MessageTemplatesPage = lazy(() => import("./pages/app/MessageTemplatesPage"));
 const SettingsPage = lazy(() => import("./pages/app/SettingsPage"));
 const GymManagementPage = lazy(() => import("./pages/app/GymManagementPage"));
 const TeamPage = lazy(() => import("./pages/app/TeamPage"));
@@ -103,6 +104,7 @@ export default function App() {
               <Route path="/challenges" element={<ChallengesPage />} />
               <Route path="/messages" element={<MessagesPage />} />
               <Route path="/notifications" element={<NotificationsPage />} />
+              <Route path="/message-templates" element={<MessageTemplatesPage />} />
               <Route path="/settings" element={<SettingsPage />} />
               <Route path="/profile" element={<UserProfiles />} />
               {/* Access is enforced centrally by ProtectedRoute via
