@@ -13,16 +13,15 @@ RUN npm ci
 # Copy the rest of the application code
 COPY . .
 
-# Build arguments and environment variables
+# Build arguments and environment variables (override .env.production when passed)
 ARG VITE_API_URL=https://api.gymmatehub.com/api
 ENV VITE_API_URL=$VITE_API_URL
 ARG VITE_STRIPE_PUBLISHABLE_KEY=
 ENV VITE_STRIPE_PUBLISHABLE_KEY=$VITE_STRIPE_PUBLISHABLE_KEY
+ARG VITE_SITE_URL=https://gymmatehub.com
+ENV VITE_SITE_URL=$VITE_SITE_URL
 
-# Ensure .env.production is used for Docker build
-RUN if [ -f .env.production ]; then cp .env.production .env; fi
-
-# Build the application
+# Build the application (vite build loads .env.production; Docker ENV overrides)
 RUN npm run build
 
 # Runtime stage with Nginx
